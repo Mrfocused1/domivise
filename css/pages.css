@@ -41,8 +41,10 @@
 }
 .cta-card_right {
   position: relative;
-  background-image: url("https://cdn.prod.website-files.com/6a284d636bce08345143d24d/6a284d636bce08345143d2ee_grid.svg");
-  background-size: cover;
+  background-image:
+    linear-gradient(rgba(26, 26, 26, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 26, 26, 0.08) 1px, transparent 1px);
+  background-size: 3rem 3rem;
   display: grid;
   place-items: center;
   padding: 3rem;

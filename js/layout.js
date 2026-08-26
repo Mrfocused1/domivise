@@ -56,7 +56,7 @@
     '<header class="nav" id="nav">' +
       '<div class="nav_inner">' +
         '<a class="nav_brand" href="' + href('/') + '" aria-label="DomiVise logo, click to go to the home page.">' +
-          '<svg viewBox="18 98 200 42" fill="none" xmlns="http://www.w3.org/2000/svg" class="nav_logo">' + LOGO_PATHS + '</svg>' +
+          '<img src="img/domivise-logo.svg" class="nav_logo" alt="DomiVise" />' +
         '</a>' +
         '<div class="nav_bar is-open" data-nav-bar>' +
           '<button class="nav_burger" id="navBurger" aria-label="Toggle menu" aria-expanded="false">' +
@@ -129,7 +129,7 @@
         '<div class="container">' +
           '<p class="label" data-block>The AI-powered home for your rental portfolio</p>' +
           '<a href="' + href('/') + '" aria-label="DomiVise logo, click to go to the home page.">' +
-            '<svg viewBox="18 98 200 42" fill="none" xmlns="http://www.w3.org/2000/svg" class="footer_wordmark">' + LOGO_PATHS + '</svg>' +
+            '<img src="img/domivise-logo.svg" class="footer_wordmark" alt="DomiVise" />' +
           '</a>' +
         '</div>' +
       '</div>' +
@@ -141,6 +141,13 @@
   var loaderEl = tmp.querySelector('[data-loader]');
   document.body.prepend(loaderEl);
   document.body.prepend(headerEl);
+
+  function dismissLoader() {
+    if (loaderEl && loaderEl.isConnected) loaderEl.remove();
+  }
+
+  window.dismissDomiViseLoader = dismissLoader;
+  setTimeout(dismissLoader, 100);
 
   tmp.innerHTML = footerHTML;
   document.body.appendChild(tmp.querySelector('[data-footer]'));

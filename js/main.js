@@ -1,12 +1,16 @@
 (function () {
   'use strict';
 
-  var hasGsap = typeof window.gsap !== 'undefined';
+  var hasGsap = false;
+  var motionReady = false;
   var isDesktop = function () { return window.matchMedia('(min-width: 768px)').matches; };
-  var canAnimate = function () { return hasGsap && window.innerWidth >= 768; };
+  var hasScrollTrigger = function () { return hasGsap && typeof window.ScrollTrigger !== 'undefined'; };
+  var canAnimate = function () { return hasScrollTrigger() && window.innerWidth >= 768; };
 
   var lenis = null;
-  if (typeof window.Lenis !== 'undefined') {
+  function startLenis() {
+    if (lenis || typeof window.Lenis === 'undefined') return;
+
     lenis = new Lenis({
       lerp: 0.1,
       wheelMultiplier: 0.8,
@@ -15,7 +19,8 @@
       smoothTouch: false
     });
     window.lenis = lenis;
-    if (hasGsap && typeof window.ScrollTrigger !== 'undefined') {
+
+    if (hasScrollTrigger()) {
       gsap.registerPlugin(ScrollTrigger);
       lenis.on('scroll', ScrollTrigger.update);
       gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
@@ -25,6 +30,16 @@
       requestAnimationFrame(raf);
     }
   }
+
+  window.initDomiViseMotion = function () {
+    hasGsap = typeof window.gsap !== 'undefined';
+    startLenis();
+    if (motionReady || !canAnimate()) return;
+
+    motionReady = true;
+    gsap.registerPlugin(ScrollTrigger);
+    initScrollAnimations();
+  };
 
   if (typeof Swiper !== 'undefined') {
     new Swiper('[data-swiper]', {
@@ -192,7 +207,7 @@
     }
   }
 
-  initScrollAnimations();
+  window.initDomiViseMotion();
 
   var loader = document.querySelector('[data-loader]');
   function runIntro() {
@@ -215,6 +230,9 @@
     }
   }
 
-  if (document.readyState === 'complete') runIntro();
-  else window.addEventListener('load', runIntro);
+  // Do not wait for every remote video and image to finish loading. Those
+  // assets can keep `window.load` pending for a long time, leaving visitors
+  // behind the full-screen loader even though the page itself is ready.
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', runIntro, { once: true });
+  else runIntro();
 })();

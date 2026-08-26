@@ -51,8 +51,11 @@
   // Hide the native cursor only while we can render our own.
   document.documentElement.classList.add('bell-cursor-active');
 
-  // Scroll-triggered media reveal — a soft clip + settle-in for [data-reveal].
-  if (window.gsap && window.ScrollTrigger && !reducedMotion) {
+  // Scroll-triggered media reveal - a soft clip + settle-in for [data-reveal].
+  window.initBellhopMotion = function () {
+    if (!window.gsap || !window.ScrollTrigger || reducedMotion || window.bellhopMotionReady) return;
+    window.bellhopMotionReady = true;
+
     gsap.utils.toArray('[data-reveal]').forEach(function (el) {
       gsap.from(el, {
         clipPath: 'inset(14% 10% 14% 10%)',
@@ -62,5 +65,7 @@
         scrollTrigger: { trigger: el, start: 'top 90%', once: true }
       });
     });
-  }
+  };
+
+  window.initBellhopMotion();
 })();
