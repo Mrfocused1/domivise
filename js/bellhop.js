@@ -62,6 +62,7 @@
         scale: 1.05,
         duration: 1.1,
         ease: 'power3.out',
+        immediateRender: false,
         scrollTrigger: { trigger: el, start: 'top 90%', once: true }
       });
     });

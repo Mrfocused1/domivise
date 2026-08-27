@@ -130,12 +130,12 @@
     document.querySelectorAll('[data-lines]').forEach(function (el) {
       var lines = splitLines(el);
       if (!lines.length) return;
-      gsap.set(lines, { yPercent: 115 });
-      gsap.to(lines, {
-        yPercent: 0,
+      gsap.from(lines, {
+        yPercent: 115,
         duration: 0.65,
         stagger: 0.1,
         ease: 'power4.out',
+        immediateRender: false,
         scrollTrigger: { trigger: el, start: 'top 88%', once: true }
       });
     });
@@ -146,6 +146,7 @@
         opacity: 0,
         duration: 0.5,
         ease: 'power2.out',
+        immediateRender: false,
         scrollTrigger: { trigger: el, start: 'top 95%', once: true }
       });
     });
@@ -157,6 +158,7 @@
         duration: 0.4,
         stagger: 0.1,
         ease: 'power2.out',
+        immediateRender: false,
         scrollTrigger: { trigger: el, start: 'top 92%', once: true }
       });
     });
@@ -167,6 +169,7 @@
         {
           y: '-2rem',
           ease: 'none',
+          immediateRender: false,
           scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: true }
         }
       );
