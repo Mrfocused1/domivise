@@ -22,6 +22,7 @@
 
   var NAV_LINKS = [
     ['#platform', 'What is DomiVise'],
+    ['#workspaces', 'Two workspaces'],
     ['#features', 'How it helps'],
     ['#founding', 'Founding 100'],
     ['#health-check', 'Health check'],
@@ -115,7 +116,7 @@
           '<p>DomiVise Ltd<br />Registered in England &amp; Wales<br />Company No. 00000000 (in incorporation)</p>' +
           '<div class="footer_credentials">' +
             '<div>' +
-              '<p>Built for UK landlords<br />England &middot; Wales &middot; Scotland</p>' +
+              '<p>Built England-first<br />Jurisdiction-ready by design</p>' +
               '<p>Product in active development &mdash; founding members get first access.</p>' +
             '</div>' +
           '</div>' +
@@ -123,7 +124,7 @@
       '</div>' +
       '<div class="footer_credits container">' +
         '<p>&copy; <span data-current-year>2026</span> DomiVise Ltd. All rights reserved.</p>' +
-        '<p>AI-powered property management, built for UK landlords.</p>' +
+        '<p>Connected property management and landlord advisory.</p>' +
       '</div>' +
       '<div class="footer_brand bg-primary-yellow text-dark-grey">' +
         '<div class="container">' +

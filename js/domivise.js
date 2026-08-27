@@ -82,14 +82,17 @@
 
   function mark(input, bad) {
     input.style.borderColor = bad ? '#b3261e' : '';
+    input.setAttribute('aria-invalid', bad ? 'true' : 'false');
   }
 
   function validate() {
     var ok = true;
-    ['fld-name', 'fld-email', 'fld-size'].forEach(function (id) {
+    ['fld-name', 'fld-email', 'fld-size', 'fld-consent'].forEach(function (id) {
       var input = document.getElementById(id);
       var valid = id === 'fld-email'
         ? /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(input.value.trim())
+        : id === 'fld-consent'
+          ? input.checked
         : Boolean(input.value);
       mark(input, !valid);
       if (!valid && ok) {
@@ -103,8 +106,9 @@
     return ok;
   }
 
-  ['fld-name', 'fld-email', 'fld-size'].forEach(function (id) {
+  ['fld-name', 'fld-email', 'fld-size', 'fld-consent'].forEach(function (id) {
     var input = document.getElementById(id);
+    if (!input) return;
     ['input', 'change'].forEach(function (evt) {
       input.addEventListener(evt, function () {
         mark(input, false);
