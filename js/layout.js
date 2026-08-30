@@ -112,10 +112,11 @@
         '<div class="footer_contact" data-block>' +
           '<p class="label">Contact us</p>' +
           '<a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a>' +
-          '<p>DomiVise Ltd<br />Intelligent property management for UK landlords</p>' +
+          '<p>DomiVise Ltd<br />Company No. 17415511<br />Registered in England and Wales<br />Registered office: Flat 3 2 Brent Cross Gardens, London, England, NW4 3RJ<br />Supporting landlords across the United Kingdom</p>' +
           '<div class="footer_credentials">' +
             '<div>' +
-              '<p>Built England-first<br />Jurisdiction-ready by design</p>' +
+              '<p>Built for landlords across the UK.<br />Guidance tailored to England, Wales, Scotland and Northern Ireland.</p>' +
+              '<p>&ldquo;Registered in England and Wales&rdquo; refers to the company&rsquo;s legal registration and does not limit DomiVise&rsquo;s UK-wide service coverage.</p>' +
               '<p>Product in active development &mdash; founding members get first access.</p>' +
             '</div>' +
           '</div>' +
@@ -123,7 +124,7 @@
       '</div>' +
       '<div class="footer_credits container">' +
         '<p>&copy; <span data-current-year>2026</span> DomiVise Ltd. All rights reserved.</p>' +
-        '<p>Intelligent property management for UK landlords.</p>' +
+        '<p>Intelligent property management for landlords across the UK.</p>' +
       '</div>' +
       '<div class="footer_brand bg-primary-yellow text-dark-grey">' +
         '<div class="container">' +

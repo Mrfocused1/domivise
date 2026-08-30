@@ -626,6 +626,8 @@ h1, h2, h3, h4, h5, h6,
 .footer_nav-small a:hover { color: var(--orange); }
 .footer_contact .label { color: var(--sage); }
 .footer_credentials { color: rgba(244, 244, 242, 0.6); }
+.footer_contact p,
+.footer_credentials p { overflow-wrap: anywhere; }
 .footer_credits { border-top: 1px solid var(--stroke-white); color: rgba(244, 244, 242, 0.55); }
 .footer_brand { background-color: var(--tan); color: var(--deep-green); }
 .footer_brand .label { color: var(--deep-green); }
@@ -684,6 +686,47 @@ html.bell-cursor-active, html.bell-cursor-active * { cursor: none !important; }
 @media screen and (max-width: 767px) {
   .container { max-width: calc(100% - 2.5rem); }
   .hero_scroll { display: none; }
+  .hero_copy .display-1 {
+    font-size: 2.25rem;
+    line-height: 1.08;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .hero_copy .display-1 .line-inner {
+    white-space: normal;
+  }
+  .hero_copy .subtitle-2,
+  .hero_subtitle {
+    overflow-wrap: anywhere;
+  }
+  .hero_copy .subtitle-2 { max-width: 22ch; }
+  .hero_subtitle {
+    font-size: 1.125rem;
+    max-width: 29ch;
+  }
+  .hero_scope {
+    font-size: 0.625rem;
+    letter-spacing: 0.05em;
+    overflow-wrap: anywhere;
+  }
+  .hero_ctas .btn {
+    width: 100%;
+    padding-inline: 0.875rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+  }
+  .hero_ctas .btn_text { width: 100%; }
+  .hero_ctas .btn_label {
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .hero_list li {
+    justify-content: flex-start;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .hero_media-card { display: none; }
   .hero_stat { position: static; display: inline-flex; gap: 0.75rem; align-items: baseline; text-align: left; margin-top: 1rem; }
   .hero_stat strong { font-size: 2rem; }

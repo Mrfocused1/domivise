@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">DomiVise social preview</title>
+  <desc id="desc">DomiVise branded social preview for UK landlords.</desc>
+  <rect width="1200" height="630" fill="#FEFBF6"/>
+  <rect x="0" y="0" width="1200" height="630" fill="#FFFCE0"/>
+  <path d="M0 533 C165 493 286 546 443 519 C626 488 689 433 852 452 C991 468 1060 494 1200 455 L1200 630 L0 630 Z" fill="#252324"/>
+  <path d="M787 92 L1086 92 L1086 391 L787 391 Z" fill="#EDE8E4"/>
+  <path d="M824 147 L1049 147 L1049 353 L824 353 Z" fill="#FEFBF6"/>
+  <path d="M846 289 L915 227 L975 279 L1028 231 L1028 333 L846 333 Z" fill="#FFEC88"/>
+  <path d="M846 178 L946 178" stroke="#252324" stroke-width="10" stroke-linecap="square"/>
+  <path d="M846 207 L1004 207" stroke="#CECBBF" stroke-width="8" stroke-linecap="square"/>
+  <circle cx="1019" cy="136" r="31" fill="#252324"/>
+  <path d="M1005 137 L1016 148 L1035 122" fill="none" stroke="#FFEC88" stroke-width="8" stroke-linecap="square" stroke-linejoin="round"/>
+  <text x="86" y="128" fill="#252324" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700">DomiVise</text>
+  <rect x="88" y="163" width="262" height="12" fill="#FFEC88"/>
+  <text x="86" y="269" fill="#252324" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700">
+    <tspan x="86" dy="0">Know what your rental</tspan>
+    <tspan x="86" dy="76">property needs before it</tspan>
+    <tspan x="86" dy="76">becomes a problem.</tspan>
+  </text>
+  <text x="88" y="581" fill="#FEFBF6" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Every property task. One connected platform.</text>
+  <text x="781" y="581" fill="#FFEC88" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">Built for landlords across the UK.</text>
+</svg>
