@@ -215,13 +215,8 @@
   var wrapper = document.querySelector('.page-wrapper');
   window.sizeFooterReveal = function () {
     if (!footer || !wrapper) return;
-    if (window.innerWidth < 992) {
-      footer.classList.remove('is-fixed');
-      wrapper.style.marginBottom = '';
-      return;
-    }
-    footer.classList.add('is-fixed');
-    wrapper.style.marginBottom = footer.offsetHeight + 'px';
+    footer.classList.remove('is-fixed');
+    wrapper.style.marginBottom = '';
   };
   window.sizeFooterReveal();
   if (footer && 'ResizeObserver' in window) {
