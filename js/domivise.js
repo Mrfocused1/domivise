@@ -2,7 +2,7 @@
   'use strict';
 
   var CONFIG = {
-    formEndpoint: '',
+    formEndpoint: '/api/founding-100',
     foundingTaken: null,
     foundingTotal: 100
   };
@@ -117,6 +117,8 @@
       }
 
       var data = new FormData(form);
+      var payload = Object.fromEntries(data.entries());
+      if (!payload['Marketing-Consent']) payload['Marketing-Consent'] = 'no';
 
       if (submitBtn) {
         submitBtn.disabled = true;
@@ -124,7 +126,14 @@
       }
 
       if (CONFIG.formEndpoint) {
-        fetch(CONFIG.formEndpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
+        fetch(CONFIG.formEndpoint, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          }
+        })
           .then(function (res) {
             if (!res.ok) throw new Error('failed');
             showSuccess();
@@ -134,7 +143,7 @@
               submitBtn.disabled = false;
               submitBtn.style.opacity = '';
             }
-            alert("Something went wrong. Please try again, or email hello@domivise.co.uk directly.");
+            alert("Something went wrong. Please try again, or email hello@domivise.com directly.");
           });
       } else {
         setTimeout(showSuccess, 400);

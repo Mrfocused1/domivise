@@ -3,3 +3,9 @@ _archive_podium/
 
 # OS junk
 .DS_Store
+
+# Local secrets
+.env
+.env.local
+.env.*.local
+.vercel/
