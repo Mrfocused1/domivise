@@ -22,7 +22,6 @@
 
   var NAV_LINKS = [
     ['#platform', 'What is DomiVise'],
-    ['#workspaces', 'Two workspaces'],
     ['#features', 'How it helps'],
     ['#founding', 'Founding 100'],
     ['#health-check', 'Health check'],
@@ -113,7 +112,7 @@
         '<div class="footer_contact" data-block>' +
           '<p class="label">Contact us</p>' +
           '<a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a>' +
-          '<p>DomiVise Ltd<br />Registered in England &amp; Wales<br />Company No. 00000000 (in incorporation)</p>' +
+          '<p>DomiVise Ltd<br />Intelligent property management for UK landlords</p>' +
           '<div class="footer_credentials">' +
             '<div>' +
               '<p>Built England-first<br />Jurisdiction-ready by design</p>' +
@@ -124,11 +123,11 @@
       '</div>' +
       '<div class="footer_credits container">' +
         '<p>&copy; <span data-current-year>2026</span> DomiVise Ltd. All rights reserved.</p>' +
-        '<p>Connected property management and landlord advisory.</p>' +
+        '<p>Intelligent property management for UK landlords.</p>' +
       '</div>' +
       '<div class="footer_brand bg-primary-yellow text-dark-grey">' +
         '<div class="container">' +
-          '<p class="label" data-block>The AI-powered home for your rental portfolio</p>' +
+          '<p class="label" data-block>The calmer home for your rental portfolio</p>' +
           '<a href="' + href('/') + '" aria-label="DomiVise logo, click to go to the home page.">' +
             '<img src="img/domivise-logo.svg" class="footer_wordmark" alt="DomiVise" />' +
           '</a>' +

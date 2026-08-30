@@ -58,17 +58,6 @@
     document.querySelectorAll('.dv-hc_arc').forEach(function (el) { el.style.strokeDashoffset = '22'; });
   }
 
-  var fill = document.querySelector('[data-spots-fill]');
-  var label = document.querySelector('[data-spots-label]');
-  if (fill && typeof CONFIG.foundingTaken === 'number') {
-    var pct = Math.max(0, Math.min(100, Math.round((CONFIG.foundingTaken / CONFIG.foundingTotal) * 100)));
-    requestAnimationFrame(function () { fill.style.width = pct + '%'; });
-    var left = CONFIG.foundingTotal - CONFIG.foundingTaken;
-    label.textContent = left > 0
-      ? left + ' of ' + CONFIG.foundingTotal + ' founding places remaining'
-      : 'All ' + CONFIG.foundingTotal + ' founding places claimed';
-  }
-
   document.querySelectorAll('[data-source]').forEach(function (el) {
     el.addEventListener('click', function () {
       var field = document.getElementById('sourceField');
