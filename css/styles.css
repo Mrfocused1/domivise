@@ -853,6 +853,9 @@ body.nav-locked {
 }
 .faq_images img {
   width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
   border-radius: 1rem;
 }
 .accordion_item {

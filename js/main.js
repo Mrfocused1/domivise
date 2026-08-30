@@ -3,13 +3,54 @@
 
   var hasGsap = false;
   var motionReady = false;
-  var isDesktop = function () { return window.matchMedia('(min-width: 768px)').matches; };
   var hasScrollTrigger = function () { return hasGsap && typeof window.ScrollTrigger !== 'undefined'; };
   var canAnimate = function () { return hasScrollTrigger() && window.innerWidth >= 768; };
+  var canUseLenis = function () { return window.matchMedia('(min-width: 768px) and (hover: hover) and (pointer: fine)').matches; };
 
   var lenis = null;
+  var lenisRafId = 0;
+  var lenisGsapBound = false;
+  var refreshTimer = 0;
+  var layoutObserver = null;
+
+  function refreshScrollTriggers() {
+    if (typeof window.ScrollTrigger === 'undefined') return;
+    window.ScrollTrigger.refresh(true);
+  }
+
+  function scheduleScrollRefresh() {
+    window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(refreshScrollTriggers, 120);
+  }
+
+  function lenisGsapTick(time) {
+    if (lenis) lenis.raf(time * 1000);
+  }
+
+  function lenisRaf(time) {
+    if (!lenis || lenisGsapBound) return;
+    lenis.raf(time);
+    lenisRafId = window.requestAnimationFrame(lenisRaf);
+  }
+
+  function bindLenisLoop() {
+    if (!lenis) return;
+    if (hasGsap && typeof window.gsap !== 'undefined') {
+      if (lenisRafId) {
+        window.cancelAnimationFrame(lenisRafId);
+        lenisRafId = 0;
+      }
+      if (!lenisGsapBound) {
+        gsap.ticker.add(lenisGsapTick);
+        lenisGsapBound = true;
+      }
+      return;
+    }
+    if (!lenisRafId) lenisRafId = window.requestAnimationFrame(lenisRaf);
+  }
+
   function startLenis() {
-    if (lenis || typeof window.Lenis === 'undefined') return;
+    if (lenis || !canUseLenis() || typeof window.Lenis === 'undefined') return;
 
     lenis = new Lenis({
       lerp: 0.1,
@@ -23,12 +64,9 @@
     if (hasScrollTrigger()) {
       gsap.registerPlugin(ScrollTrigger);
       lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
       gsap.ticker.lagSmoothing(0);
-    } else {
-      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-      requestAnimationFrame(raf);
     }
+    bindLenisLoop();
   }
 
   window.initDomiViseMotion = function () {
@@ -38,6 +76,7 @@
 
     motionReady = true;
     gsap.registerPlugin(ScrollTrigger);
+    if (typeof ScrollTrigger.clearScrollMemory === 'function') ScrollTrigger.clearScrollMemory('manual');
     initScrollAnimations();
   };
 
@@ -91,7 +130,7 @@
         accordion.querySelectorAll('details[open]').forEach(function (other) {
           if (other !== item) other.open = false;
         });
-        if (lenis && typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+        if (lenis && typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh(true);
       });
     });
   }
@@ -206,11 +245,48 @@
     });
 
     if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+      document.fonts.ready.then(scheduleScrollRefresh);
     }
+
+    if (layoutObserver) layoutObserver.disconnect();
+    var wrapper = document.querySelector('.page-wrapper');
+    if (wrapper && 'ResizeObserver' in window) {
+      var lastHeight = wrapper.getBoundingClientRect().height;
+      layoutObserver = new ResizeObserver(function () {
+        var nextHeight = wrapper.getBoundingClientRect().height;
+        if (Math.abs(nextHeight - lastHeight) < 0.5) return;
+        lastHeight = nextHeight;
+        scheduleScrollRefresh();
+      });
+      layoutObserver.observe(wrapper);
+    }
+
+    document.querySelectorAll('img, video').forEach(function (media) {
+      if (media.complete && media.tagName === 'IMG') return;
+      media.addEventListener('load', scheduleScrollRefresh, { once: true });
+      media.addEventListener('loadedmetadata', scheduleScrollRefresh, { once: true });
+    });
+    window.addEventListener('load', scheduleScrollRefresh, { once: true });
+  }
+
+  function handleResize() {
+    startLenis();
+    if (!motionReady && canAnimate()) {
+      motionReady = true;
+      gsap.registerPlugin(ScrollTrigger);
+      initScrollAnimations();
+    }
+    scheduleScrollRefresh();
   }
 
   window.initDomiViseMotion();
+  window.addEventListener('resize', handleResize, { passive: true });
+  window.addEventListener('pageshow', function () {
+    if (typeof window.ScrollTrigger !== 'undefined' && typeof ScrollTrigger.clearScrollMemory === 'function') {
+      ScrollTrigger.clearScrollMemory('manual');
+    }
+    scheduleScrollRefresh();
+  });
 
   var loader = document.querySelector('[data-loader]');
   function runIntro() {

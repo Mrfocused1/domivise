@@ -22,7 +22,6 @@
     script.src = sources[index];
     script.async = true;
     script.onload = function () {
-      notifyMotionReady();
       loadNext(index + 1);
     };
     script.onerror = function () {

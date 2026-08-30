@@ -223,6 +223,16 @@
     wrapper.style.marginBottom = footer.offsetHeight + 'px';
   };
   window.sizeFooterReveal();
+  if (footer && 'ResizeObserver' in window) {
+    var footerObserver = new ResizeObserver(function () {
+      window.sizeFooterReveal();
+    });
+    footerObserver.observe(footer);
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(window.sizeFooterReveal);
+  }
+  window.addEventListener('load', window.sizeFooterReveal, { once: true });
   window.addEventListener('resize', function () {
     syncBar();
     window.sizeFooterReveal();
