@@ -68,6 +68,22 @@
   var form = document.getElementById('joinForm');
   var success = document.getElementById('joinSuccess');
   var submitBtn = document.getElementById('submitBtn');
+  var formStatus = document.getElementById('formStatus');
+  var submitDefaultLabelEl = submitBtn ? submitBtn.querySelector('.btn_label:not(.is-duplicate)') : null;
+  var submitDefaultDuplicateLabelEl = submitBtn ? submitBtn.querySelector('.btn_label.is-duplicate') : null;
+  var submitDefaultLabel = submitDefaultLabelEl ? submitDefaultLabelEl.textContent : '';
+  var submitDefaultDuplicateLabel = submitDefaultDuplicateLabelEl ? submitDefaultDuplicateLabelEl.textContent : '';
+
+  function setSubmitLabel(label) {
+    if (!submitBtn) return;
+    submitBtn.querySelectorAll('.btn_label').forEach(function (el) {
+      el.textContent = label;
+    });
+  }
+
+  function setFormStatus(message) {
+    if (formStatus) formStatus.textContent = message || '';
+  }
 
   function mark(input, bad) {
     input.style.borderColor = bad ? '#b3261e' : '';
@@ -123,7 +139,10 @@
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.style.opacity = '0.6';
+        submitBtn.setAttribute('aria-busy', 'true');
+        setSubmitLabel('Sending...');
       }
+      setFormStatus('Sending your application...');
 
       if (CONFIG.formEndpoint) {
         fetch(CONFIG.formEndpoint, {
@@ -142,7 +161,10 @@
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.style.opacity = '';
+              submitBtn.removeAttribute('aria-busy');
+              setSubmitLabel(submitDefaultLabel || submitDefaultDuplicateLabel || 'Apply to join the Founding 100');
             }
+            setFormStatus('');
             alert("Something went wrong. Please try again, or email hello@domivise.co.uk directly.");
           });
       } else {
@@ -152,8 +174,14 @@
   }
 
   function showSuccess() {
+    if (submitBtn) {
+      submitBtn.removeAttribute('aria-busy');
+      setSubmitLabel('Application received');
+    }
+    setFormStatus('Application received. Confirmation email sent.');
     form.hidden = true;
     success.hidden = false;
+    success.focus({ preventScroll: true });
     if (window.lenis) window.lenis.scrollTo(success, { offset: -120 });
     else success.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }

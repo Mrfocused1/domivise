@@ -389,12 +389,13 @@
             <span>I&rsquo;d also like to receive optional DomiVise marketing updates. I can unsubscribe at any time.</span>
           </label>
           <button type="submit" class="btn btn_primary dv-submit" id="submitBtn"><span class="btn_text"><span class="btn_label">Apply to join the Founding 100</span><span class="btn_label is-duplicate" aria-hidden="true">Apply to join the Founding 100</span></span></button>
+          <p class="dv-form-status" id="formStatus" role="status" aria-live="polite"></p>
           <p class="form-error">Please check the highlighted fields and try again.</p>
           <p class="label dv-small dv-center-text">Optional marketing is separate from Founding 100 and private-beta administration. See our <a href="privacy.html">privacy policy</a>.</p>
         </form>
-        <div class="form-success dv-success" id="joinSuccess" hidden>
+        <div class="form-success dv-success" id="joinSuccess" role="status" aria-live="polite" tabindex="-1" hidden>
           <h3 class="h6">Application received.</h3>
-          <p>Welcome to the Founding 100. Keep an eye on your inbox &mdash; we&rsquo;ll be in touch with next steps as the beta comes together.</p>
+          <p>Welcome to the Founding 100. We&rsquo;ve sent a confirmation email and will be in touch with next steps as the beta comes together.</p>
           <p class="label">Any questions? <a href="mailto:hello@domivise.co.uk">hello@domivise.co.uk</a></p>
         </div>
       </div>
