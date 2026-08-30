@@ -1,6 +1,6 @@
 const RESEND_EMAILS_URL = 'https://api.resend.com/emails';
-const DEFAULT_FROM = 'DomiVise <hello@domivise.com>';
-const DEFAULT_TO = 'hello@domivise.com';
+const DEFAULT_FROM = 'DomiVise <hello@domivise.co.uk>';
+const DEFAULT_TO = 'hello@domivise.co.uk';
 
 function sendJson(res, status, body) {
   res.statusCode = status;

@@ -143,7 +143,7 @@
               submitBtn.disabled = false;
               submitBtn.style.opacity = '';
             }
-            alert("Something went wrong. Please try again, or email hello@domivise.com directly.");
+            alert("Something went wrong. Please try again, or email hello@domivise.co.uk directly.");
           });
       } else {
         setTimeout(showSuccess, 400);

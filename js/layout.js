@@ -102,7 +102,7 @@
           '<ul class="footer_nav-small" data-children>' +
             '<li><a data-underline href="#health-check">Five-Minute Health Check</a></li>' +
             '<li><a data-underline href="#faq">FAQ</a></li>' +
-            '<li><a data-underline href="mailto:hello@domivise.com?subject=Hello%20DomiVise!">hello@domivise.com</a></li>' +
+            '<li><a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a></li>' +
             '<li><a data-underline href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
             '<li><a data-underline href="https://www.linkedin.com/company/domivise" target="_blank" rel="noopener">LinkedIn</a></li>' +
             '<li><a data-underline href="' + href('/privacy') + '">Privacy Policy</a></li>' +
@@ -111,7 +111,7 @@
         '</nav>' +
         '<div class="footer_contact" data-block>' +
           '<p class="label">Contact us</p>' +
-          '<a data-underline href="mailto:hello@domivise.com?subject=Hello%20DomiVise!">hello@domivise.com</a>' +
+          '<a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a>' +
           '<p>DomiVise Ltd<br />Company No. 17415511<br />Registered in England and Wales<br />Registered office: Flat 3 2 Brent Cross Gardens, London, England, NW4 3RJ<br />Supporting landlords across the United Kingdom</p>' +
           '<div class="footer_credentials">' +
             '<div>' +
