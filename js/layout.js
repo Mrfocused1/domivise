@@ -31,7 +31,7 @@
   var SECONDARY_LINKS = [
     ['/', 'Home'],
     ['https://instagram.com/domivise', 'Instagram', true],
-    ['https://www.linkedin.com/company/domivise', 'LinkedIn', true],
+    ['https://www.linkedin.com/company/domivise-ltd/', 'LinkedIn', true],
     ['/privacy', 'Privacy Policy'],
     ['/terms', 'Terms of Use']
   ];
@@ -104,7 +104,7 @@
             '<li><a data-underline href="#faq">FAQ</a></li>' +
             '<li><a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a></li>' +
             '<li><a data-underline href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
-            '<li><a data-underline href="https://www.linkedin.com/company/domivise" target="_blank" rel="noopener">LinkedIn</a></li>' +
+            '<li><a data-underline href="https://www.linkedin.com/company/domivise-ltd/" target="_blank" rel="noopener">LinkedIn</a></li>' +
             '<li><a data-underline href="' + href('/privacy') + '">Privacy Policy</a></li>' +
             '<li><a data-underline href="' + href('/terms') + '">Terms of Use</a></li>' +
           '</ul>' +
@@ -112,7 +112,7 @@
         '<div class="footer_contact" data-block>' +
           '<p class="label">Contact us</p>' +
           '<a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a>' +
-          '<p>DomiVise Ltd<br />Company No. 17415511<br />Registered in England and Wales<br />Registered office: Flat 3 2 Brent Cross Gardens, London, England, NW4 3RJ<br />Supporting landlords across the United Kingdom</p>' +
+          '<p>DomiVise Ltd<br />Company No. 17415511<br />Registered in England and Wales<br />Supporting landlords across the United Kingdom</p>' +
           '<div class="footer_credentials">' +
             '<div>' +
               '<p>Built for landlords across the UK.<br />Guidance tailored to England, Wales, Scotland and Northern Ireland.</p>' +
