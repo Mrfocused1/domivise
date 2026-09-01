@@ -123,6 +123,11 @@
     }).catch(function () {});
   }
 
+  function linkAnalyticsLabel(link) {
+    var label = link.querySelector('.btn_label:not(.is-duplicate)');
+    return cleanAnalyticsText((label || link).textContent, 140);
+  }
+
   function startAnalytics() {
     if (analyticsStarted || isAdminPreview()) return;
     analyticsStarted = true;
@@ -136,7 +141,7 @@
       link.addEventListener('click', function () {
         var section = link.closest('section');
         trackAnalytics('cta_click', {
-          label: cleanAnalyticsText(link.textContent, 140),
+          label: linkAnalyticsLabel(link),
           source: link.getAttribute('data-source') || (section && section.id) || 'landing-page'
         });
       });

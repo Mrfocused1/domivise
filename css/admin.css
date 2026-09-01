@@ -81,7 +81,7 @@ a { color: inherit; }
 .admin-analytics-head h2 { margin: 5px 0 0; font: 500 22px/1.15 "Lexend", sans-serif; letter-spacing: 0; }
 .admin-analytics-head p:not(.admin-overline) { margin: 6px 0 0; color: var(--admin-muted); font-size: 12px; line-height: 1.45; }
 .admin-analytics-loading { padding: 18px 20px; border: 1px solid var(--admin-line); border-radius: var(--admin-radius); background: var(--admin-panel); color: var(--admin-muted); font-size: 13px; }
-.admin-metrics { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.admin-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 10px; }
 .admin-metric { min-height: 88px; display: grid; align-content: space-between; gap: 15px; padding: 14px; border: 1px solid var(--admin-line); border-radius: 7px; background: var(--admin-panel); }
 .admin-metric span { color: var(--admin-muted); font: 600 11px/1.2 "Lexend", sans-serif; letter-spacing: 0; }
 .admin-metric strong { font: 600 26px/1 "Lexend", sans-serif; letter-spacing: 0; color: var(--admin-green); }
@@ -96,6 +96,23 @@ a { color: inherit; }
 .admin-bar-row span { overflow-wrap: anywhere; }
 .admin-bar-row strong { color: var(--admin-ink); font: 600 12px/1.3 "Lexend", sans-serif; }
 .admin-bar-row i { display: block; height: 7px; border-radius: 999px; background: var(--admin-orange); }
+.admin-trend { max-height: 270px; display: grid; gap: 7px; overflow: auto; padding-right: 4px; }
+.admin-trend-row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 30px; align-items: center; gap: 9px; font-size: 11px; color: var(--admin-muted); }
+.admin-trend-row time { font: 600 10px/1.2 "Lexend", sans-serif; }
+.admin-trend-row span { text-align: right; font: 600 10px/1.2 "Lexend", sans-serif; color: var(--admin-ink); }
+.admin-trend-bars { display: grid; align-content: center; gap: 2px; min-height: 22px; }
+.admin-trend-bars i, .admin-trend-key i { display: block; height: 4px; border-radius: 999px; }
+.admin-trend-bars .is-page, .admin-trend-key .is-page { background: var(--admin-green); }
+.admin-trend-bars .is-cta, .admin-trend-key .is-cta { background: var(--admin-orange); }
+.admin-trend-bars .is-application, .admin-trend-key .is-application { background: #8d7a4b; }
+.admin-trend-key { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 11px; color: var(--admin-muted); font: 600 10px/1.2 "Lexend", sans-serif; }
+.admin-trend-key span { display: inline-flex; align-items: center; gap: 5px; }
+.admin-trend-key i { width: 16px; }
+.admin-funnel { display: grid; gap: 13px; }
+.admin-funnel-row { display: grid; gap: 7px; }
+.admin-funnel-row div { display: flex; justify-content: space-between; gap: 12px; color: var(--admin-muted); font-size: 12px; line-height: 1.3; }
+.admin-funnel-row strong { color: var(--admin-ink); font: 600 12px/1.3 "Lexend", sans-serif; }
+.admin-funnel-row i { display: block; height: 9px; border-radius: 999px; background: var(--admin-green); }
 .admin-activity { display: grid; border-top: 1px solid var(--admin-soft); }
 .admin-activity-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--admin-soft); font-size: 12px; line-height: 1.4; }
 .admin-activity-row time { color: var(--admin-muted); font: 600 11px/1.5 "Lexend", sans-serif; }
@@ -150,7 +167,6 @@ a { color: inherit; }
 
 @media (max-width: 1120px) {
   .admin-grid { grid-template-columns: 1fr; }
-  .admin-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .admin-analytics-layout { grid-template-columns: 1fr; }
   .admin-analytics-block:last-child { grid-column: auto; }
   .admin-preview-panel { position: static; }

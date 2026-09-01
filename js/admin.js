@@ -340,9 +340,13 @@
     postPreview();
   }
 
+  function analyticsSummaryUrl() {
+    return authUrl('/rest/v1/rpc/site_analytics_summary');
+  }
+
   function analyticsQueryUrl(days) {
     var since = new Date(Date.now() - (days * 24 * 60 * 60 * 1000)).toISOString();
-    return authUrl('/rest/v1/site_analytics_events?select=created_at,event_name,page_path,source,referrer_host,visitor_id,session_id,metadata&created_at=gte.' + encodeURIComponent(since) + '&order=created_at.desc&limit=1000');
+    return authUrl('/rest/v1/site_analytics_events?select=created_at,event_name,page_path,source,referrer_host,visitor_id,session_id,metadata&created_at=gte.' + encodeURIComponent(since) + '&order=created_at.desc&limit=20');
   }
 
   function loadAnalytics() {
@@ -350,29 +354,38 @@
     analyticsMount.innerHTML = '<div class="admin-analytics-loading">Loading analytics...</div>';
     return ensureSession().then(function (activeSession) {
       if (!activeSession) throw new Error('session_required');
-      return fetch(analyticsQueryUrl(30), {
-        headers: authHeaders(activeSession.access_token)
-      });
-    }).then(function (response) {
-      if (!response.ok) {
+      var headers = authHeaders(activeSession.access_token);
+      return Promise.all([
+        fetch(analyticsSummaryUrl(), {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ days_back: 30 })
+        }),
+        fetch(analyticsQueryUrl(30), { headers: headers })
+      ]);
+    }).then(function (responses) {
+      if (!responses[0].ok || !responses[1].ok) {
         var error = new Error('analytics_unavailable');
-        error.status = response.status;
+        error.status = responses[0].ok ? responses[1].status : responses[0].status;
         throw error;
       }
-      return response.json();
-    }).then(function (events) {
-      renderAnalytics(Array.isArray(events) ? events : []);
+      return Promise.all([responses[0].json(), responses[1].json()]);
+    }).then(function (payload) {
+      var summary = normalizeSummary(payload[0]);
+      var events = Array.isArray(payload[1]) ? payload[1] : [];
+      renderAnalytics(summary, events);
     }).catch(function (error) {
       renderAnalyticsError(error);
     });
   }
 
-  function renderAnalytics(events) {
+  function renderAnalytics(summary, events) {
     if (!analyticsMount) return;
-    var summary = summarizeAnalytics(events);
+    summary = summary || summarizeAnalytics(events);
+    summary.recent = events.slice(0, 12);
     analyticsMount.innerHTML = [
       '<div class="admin-analytics-head">',
-      '<div><p class="admin-overline">Analytics</p><h2>What is happening</h2><p>Last 30 days from the latest ' + events.length + ' tracked events.</p></div>',
+      '<div><p class="admin-overline">Analytics</p><h2>What is happening</h2><p>Last 30 days. Recent activity shows the latest ' + events.length + ' tracked events.</p></div>',
       '<button class="admin-button admin-button-quiet" id="refreshAnalyticsBtn" type="button">Refresh</button>',
       '</div>',
       '<div class="admin-metrics">',
@@ -382,11 +395,17 @@
       metricMarkup('CTA clicks', summary.ctaClicks),
       metricMarkup('Applications', summary.applications),
       metricMarkup('Conversion', summary.conversion),
+      metricMarkup('Errors', summary.errorsTotal),
       '</div>',
       '<div class="admin-analytics-layout">',
+      analyticsBlock('Daily trend', trendMarkup(summary.daily)),
+      analyticsBlock('Form funnel', funnelMarkup(summary.funnel)),
       analyticsBlock('Top sources', barListMarkup(summary.sources, 'No traffic sources yet.')),
       analyticsBlock('CTA clicks', barListMarkup(summary.ctas, 'No CTA clicks yet.')),
       analyticsBlock('Section views', barListMarkup(summary.sections, 'No section views yet.')),
+      analyticsBlock('Portfolio sizes', barListMarkup(summary.portfolioSizes, 'No application portfolio data yet.')),
+      analyticsBlock('Marketing consent', barListMarkup(summary.marketingConsent, 'No application consent data yet.')),
+      analyticsBlock('Errors', barListMarkup(summary.errors, 'No form errors tracked yet.')),
       analyticsBlock('Recent activity', activityMarkup(summary.recent)),
       '</div>'
     ].join('');
@@ -420,6 +439,33 @@
     return '<section class="admin-analytics-block"><h3>' + escapeHtml(title) + '</h3>' + body + '</section>';
   }
 
+  function normalizeSummary(summary) {
+    summary = summary && typeof summary === 'object' ? summary : {};
+    return {
+      visitors: Number(summary.visitors || 0),
+      sessions: Number(summary.sessions || 0),
+      pageViews: Number(summary.pageViews || 0),
+      ctaClicks: Number(summary.ctaClicks || 0),
+      formAttempts: Number(summary.formAttempts || 0),
+      applications: Number(summary.applications || 0),
+      conversion: formatPercent(summary.conversion || 0),
+      errorsTotal: Number(summary.errorsTotal || 0),
+      daily: normalizeItems(summary.daily),
+      funnel: normalizeItems(summary.funnel),
+      sources: normalizeItems(summary.sources),
+      ctas: normalizeItems(summary.ctas),
+      sections: normalizeItems(summary.sections),
+      portfolioSizes: normalizeItems(summary.portfolioSizes),
+      marketingConsent: normalizeItems(summary.marketingConsent),
+      errors: normalizeItems(summary.errors),
+      recent: []
+    };
+  }
+
+  function normalizeItems(items) {
+    return Array.isArray(items) ? items : [];
+  }
+
   function summarizeAnalytics(events) {
     var visitors = {};
     var sessions = {};
@@ -427,33 +473,66 @@
     var sources = {};
     var ctas = {};
     var sections = {};
+    var portfolioSizes = {};
+    var marketingConsent = {};
+    var errors = {};
+    var daily = {};
     var recent = events.slice(0, 12);
 
     events.forEach(function (event) {
+      var day = event.created_at ? event.created_at.slice(0, 10) : '';
+      if (day && !daily[day]) daily[day] = { date: day, pageViews: 0, ctaClicks: 0, applications: 0 };
       if (event.visitor_id) visitors[event.visitor_id] = true;
       if (event.session_id) sessions[event.session_id] = true;
       counts[event.event_name] = (counts[event.event_name] || 0) + 1;
-      addCount(sources, event.source || event.referrer_host || 'direct');
+      if (event.event_name === 'page_view') {
+        addCount(sources, event.source || event.referrer_host || 'direct');
+        if (day) daily[day].pageViews += 1;
+      }
       if (event.event_name === 'cta_click') {
         addCount(ctas, cleanLabel((event.metadata && event.metadata.label) || event.source || 'CTA'));
+        if (day) daily[day].ctaClicks += 1;
       }
       if (event.event_name === 'section_view') {
         addCount(sections, cleanLabel((event.metadata && event.metadata.section) || 'section'));
+      }
+      if (event.event_name === 'form_submit_success') {
+        addCount(portfolioSizes, cleanLabel(event.metadata && event.metadata.portfolioSize || 'Not supplied'));
+        addCount(marketingConsent, event.metadata && event.metadata.marketingConsent === 'yes' ? 'Yes' : 'No');
+        if (day) daily[day].applications += 1;
+      }
+      if (event.event_name === 'form_validation_failed' || event.event_name === 'form_submit_error') {
+        addCount(errors, event.event_name);
       }
     });
 
     var pageViews = counts.page_view || 0;
     var applications = counts.form_submit_success || 0;
+    var ctaClicks = counts.cta_click || 0;
+    var formAttempts = counts.form_submit_attempt || 0;
+    var errorsTotal = (counts.form_validation_failed || 0) + (counts.form_submit_error || 0);
     return {
       visitors: Object.keys(visitors).length,
       sessions: Object.keys(sessions).length,
       pageViews: pageViews,
-      ctaClicks: counts.cta_click || 0,
+      ctaClicks: ctaClicks,
+      formAttempts: formAttempts,
       applications: applications,
-      conversion: pageViews ? Math.round((applications / pageViews) * 1000) / 10 + '%' : '0%',
+      conversion: pageViews ? formatPercent(Math.round((applications / pageViews) * 1000) / 10) : '0%',
+      errorsTotal: errorsTotal,
+      funnel: [
+        { label: 'Page views', value: pageViews },
+        { label: 'CTA clicks', value: ctaClicks },
+        { label: 'Form attempts', value: formAttempts },
+        { label: 'Applications', value: applications }
+      ],
+      daily: Object.keys(daily).sort().map(function (key) { return daily[key]; }),
       sources: rankedCounts(sources),
       ctas: rankedCounts(ctas),
       sections: rankedCounts(sections),
+      portfolioSizes: rankedCounts(portfolioSizes),
+      marketingConsent: rankedCounts(marketingConsent),
+      errors: rankedCounts(errors),
       recent: recent
     };
   }
@@ -467,12 +546,41 @@
     return String(value || 'unknown').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'unknown';
   }
 
+  function formatPercent(value) {
+    var number = Number(value || 0);
+    return (Math.round(number * 10) / 10) + '%';
+  }
+
   function rankedCounts(counts) {
     return Object.keys(counts).map(function (key) {
       return { label: key, value: counts[key] };
     }).sort(function (a, b) {
       return b.value - a.value || a.label.localeCompare(b.label);
     }).slice(0, 8);
+  }
+
+  function trendMarkup(items) {
+    items = normalizeItems(items);
+    if (!items.length) return '<p class="admin-analytics-empty">No daily analytics yet.</p>';
+    var max = items.reduce(function (largest, item) {
+      return Math.max(largest, Number(item.pageViews || 0), Number(item.ctaClicks || 0), Number(item.applications || 0));
+    }, 1);
+    return '<div class="admin-trend">' + items.map(function (item) {
+      var pageWidth = Math.max(0, Math.round((Number(item.pageViews || 0) / max) * 100));
+      var ctaWidth = Math.max(0, Math.round((Number(item.ctaClicks || 0) / max) * 100));
+      var appWidth = Math.max(0, Math.round((Number(item.applications || 0) / max) * 100));
+      return '<div class="admin-trend-row"><time>' + escapeHtml(formatShortDate(item.date)) + '</time><div class="admin-trend-bars"><i class="is-page" style="width:' + pageWidth + '%"></i><i class="is-cta" style="width:' + ctaWidth + '%"></i><i class="is-application" style="width:' + appWidth + '%"></i></div><span>' + escapeHtml(Number(item.pageViews || 0)) + '</span></div>';
+    }).join('') + '</div><div class="admin-trend-key"><span><i class="is-page"></i>Views</span><span><i class="is-cta"></i>CTAs</span><span><i class="is-application"></i>Applications</span></div>';
+  }
+
+  function funnelMarkup(items) {
+    items = normalizeItems(items);
+    if (!items.length) return '<p class="admin-analytics-empty">No funnel data yet.</p>';
+    var max = items.reduce(function (largest, item) { return Math.max(largest, Number(item.value || 0)); }, 1);
+    return '<div class="admin-funnel">' + items.map(function (item) {
+      var width = Math.max(Number(item.value || 0) ? 8 : 0, Math.round((Number(item.value || 0) / max) * 100));
+      return '<div class="admin-funnel-row"><div><span>' + escapeHtml(item.label) + '</span><strong>' + escapeHtml(Number(item.value || 0)) + '</strong></div><i style="width:' + width + '%"></i></div>';
+    }).join('') + '</div>';
   }
 
   function barListMarkup(items, emptyText) {
@@ -511,6 +619,15 @@
       month: 'short',
       hour: '2-digit',
       minute: '2-digit'
+    }).format(date);
+  }
+
+  function formatShortDate(value) {
+    var date = new Date(value);
+    if (!isFinite(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short'
     }).format(date);
   }
 
