@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&amp;family=Raleway:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/admin.css" />
 </head>
-<body class="admin-body">
+<body class="admin-body is-auth-locked">
   <div class="admin-shell">
     <aside class="admin-sidebar">
       <a class="admin-brand" href="index.html" target="_blank" rel="noopener" aria-label="Open DomiVise homepage">
@@ -46,7 +46,7 @@
         </section>
         <aside class="admin-preview-panel">
           <div class="admin-preview-head"><div><p class="admin-overline">Live preview</p><h2>Preview</h2></div><a href="index.html" target="_blank" rel="noopener">Open homepage ↗</a></div>
-          <div class="admin-preview-frame"><iframe id="sitePreview" title="Live DomiVise site preview" src="index.html?adminPreview=1"></iframe></div>
+          <div class="admin-preview-frame"><iframe id="sitePreview" title="Live DomiVise site preview" data-src="index.html?adminPreview=1"></iframe></div>
           <p class="admin-preview-note">Preview updates as you type.</p>
         </aside>
       </div>

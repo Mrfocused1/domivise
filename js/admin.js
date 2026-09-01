@@ -20,6 +20,10 @@
 
   authPanel.className = 'admin-auth-panel';
 
+  function getConfig() {
+    return window.DOMIVISE_SUPABASE_CONFIG || {};
+  }
+
   var GROUPS = [
     {
       id: 'hero', number: '01', title: 'Top section', description: 'Edit the first thing visitors see on the homepage.',
@@ -225,6 +229,34 @@
     saveState.classList.toggle('is-saved', Boolean(saved));
   }
 
+  function setLocked(locked) {
+    document.body.classList.toggle('is-auth-locked', Boolean(locked));
+  }
+
+  function setHeader(title, overline) {
+    var heading = document.querySelector('.admin-topbar h1');
+    var label = document.querySelector('.admin-topbar .admin-overline');
+    if (heading) heading.textContent = title;
+    if (label) label.textContent = overline;
+  }
+
+  function showLoginView(title) {
+    setLocked(true);
+    setHeader(title || 'Sign in to edit your homepage.', 'DomiVise admin');
+    if (editor) editor.innerHTML = '';
+  }
+
+  function showEditorView() {
+    setLocked(false);
+    setHeader('Edit your homepage.', 'DomiVise editor');
+  }
+
+  function ensurePreviewLoaded() {
+    if (!preview || preview.getAttribute('src')) return;
+    var src = preview.getAttribute('data-src');
+    if (src) preview.setAttribute('src', src);
+  }
+
   function notify(title, message, tone) {
     if (!notifications) return;
     var notice = document.createElement('div');
@@ -389,24 +421,29 @@
   }
 
   function renderAuthPanel() {
-    if (!model.isSupabaseConfigured()) {
-      authPanel.remove();
-      updateConnectionText('Publishing not connected');
-      return;
-    }
-
     if (!authPanel.isConnected) {
       var topbar = document.querySelector('.admin-topbar');
       if (overview) overview.insertAdjacentElement('afterend', authPanel);
       else if (topbar) topbar.insertAdjacentElement('afterend', authPanel);
     }
 
+    if (!model.isSupabaseConfigured()) {
+      showLoginView('Admin sign-in is unavailable.');
+      authPanel.innerHTML = '<div><strong>Publishing is not connected</strong><p>The admin editor needs the Supabase public key before anyone can sign in.</p></div>';
+      updateConnectionText('Publishing not connected');
+      setStatus('Publishing not connected', false);
+      return;
+    }
+
     if (session && currentUser) {
       var admin = isAdminUser(currentUser);
+      if (!admin) showLoginView('This account cannot edit the homepage.');
+      else showEditorView();
       authPanel.innerHTML = '<div><strong>' + (admin ? 'Signed in' : 'This account cannot publish') + '</strong><p>' + escapeHtml(currentUser.email || 'Signed-in account') + (admin ? ' can publish homepage changes.' : ' needs publishing access before changes can go live.') + '</p></div><button class="admin-button admin-button-quiet" id="signOutBtn" type="button">Sign out</button>';
       document.getElementById('signOutBtn').addEventListener('click', function () {
         storeSession(null);
         currentUser = null;
+        showLoginView('Sign in to edit your homepage.');
         renderAuthPanel();
         setStatus('Signed out', false);
       });
@@ -414,6 +451,7 @@
       return;
     }
 
+    showLoginView('Sign in to edit your homepage.');
     authPanel.innerHTML = [
       '<form class="admin-login" id="adminLogin">',
       '<div><strong>Sign in to publish</strong><p>Use your DomiVise admin email and password.</p></div>',
@@ -432,9 +470,14 @@
         .then(fetchUser)
         .then(function (user) {
           renderAuthPanel();
-          setStatus(isAdminUser(user) ? 'Signed in. Ready to publish.' : 'This account cannot publish.', isAdminUser(user));
+          if (isAdminUser(user)) {
+            setStatus('Signed in. Ready to publish.', true);
+            return loadInitialContent();
+          }
+          setStatus('This account cannot publish.', false);
         })
         .catch(function () {
+          showLoginView('Sign in to edit your homepage.');
           setStatus('Sign-in failed', false);
         });
     });
@@ -446,6 +489,15 @@
   }
 
   function loadInitialContent() {
+    if (!isAdminUser(currentUser)) {
+      showLoginView('Sign in to edit your homepage.');
+      setStatus(model.isSupabaseConfigured() ? 'Sign in required' : 'Publishing not connected', false);
+      return Promise.resolve();
+    }
+
+    showEditorView();
+    ensurePreviewLoaded();
+
     if (!model.isSupabaseConfigured()) {
       content = model.loadLocal();
       remoteUnavailable = true;
@@ -583,6 +635,3 @@
 
   (model.ensureConfig ? model.ensureConfig() : Promise.resolve()).then(start);
 })();
-  function getConfig() {
-    return window.DOMIVISE_SUPABASE_CONFIG || {};
-  }
