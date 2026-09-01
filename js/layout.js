@@ -105,6 +105,7 @@
             '<li><a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a></li>' +
             '<li><a data-underline href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
             '<li><a data-underline href="https://www.linkedin.com/company/domivise-ltd/" target="_blank" rel="noopener">LinkedIn</a></li>' +
+            '<li><a data-underline href="admin.html">Admin</a></li>' +
             '<li><a data-underline href="' + href('/privacy') + '">Privacy Policy</a></li>' +
             '<li><a data-underline href="' + href('/terms') + '">Terms of Use</a></li>' +
           '</ul>' +
