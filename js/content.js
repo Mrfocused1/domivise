@@ -2,7 +2,6 @@
   'use strict';
 
   var STORAGE_KEY = 'domivise-content-v1';
-  var CONFIG = window.DOMIVISE_SUPABASE_CONFIG || {};
   var HOMEPAGE_ID = 'homepage';
 
   var DEFAULT_CONTENT = {
@@ -229,6 +228,18 @@
     }
   };
 
+  function getConfig() {
+    return window.DOMIVISE_SUPABASE_CONFIG || {};
+  }
+
+  function ensureConfig() {
+    var ready = window.DOMIVISE_SUPABASE_CONFIG_READY;
+    if (ready && typeof ready.then === 'function') {
+      return ready.catch(function () { return getConfig(); });
+    }
+    return Promise.resolve(getConfig());
+  }
+
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
   }
@@ -247,14 +258,17 @@
   }
 
   function isSupabaseConfigured() {
+    var CONFIG = getConfig();
     return Boolean(CONFIG.url && CONFIG.publishableKey && CONFIG.publishableKey.indexOf('replace-') !== 0);
   }
 
   function restUrl(path) {
+    var CONFIG = getConfig();
     return CONFIG.url.replace(/\/$/, '') + path;
   }
 
   function supabaseHeaders(token) {
+    var CONFIG = getConfig();
     var headers = {
       apikey: CONFIG.publishableKey,
       Authorization: 'Bearer ' + (token || CONFIG.publishableKey),
@@ -664,6 +678,7 @@
     DEFAULT_CONTENT: DEFAULT_CONTENT,
     clone: clone,
     merge: merge,
+    ensureConfig: ensureConfig,
     isSupabaseConfigured: isSupabaseConfigured,
     load: load,
     loadLocal: loadLocal,
@@ -678,7 +693,7 @@
   window.domiviseContent = load();
   window.applyDomiViseContent = function () { return apply(window.domiviseContent); };
   window.applyDomiViseContent();
-  hydratePublished();
+  ensureConfig().then(hydratePublished);
 
   window.addEventListener('message', function (event) {
     if (!event.data || event.data.type !== 'domivise-content-preview') return;

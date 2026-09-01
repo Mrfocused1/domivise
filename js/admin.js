@@ -5,7 +5,6 @@
   if (!model) return;
 
   var AUTH_SESSION_KEY = 'domivise-admin-session-v1';
-  var config = window.DOMIVISE_SUPABASE_CONFIG || {};
   var content = model.loadLocal();
   var editor = document.getElementById('editorMount');
   var preview = document.getElementById('sitePreview');
@@ -17,10 +16,9 @@
   var saveTimer;
   var session = loadStoredSession();
   var currentUser = null;
-  var remoteUnavailable = !model.isSupabaseConfigured();
+  var remoteUnavailable = true;
 
   authPanel.className = 'admin-auth-panel';
-  if (overview && model.isSupabaseConfigured()) overview.insertAdjacentElement('afterend', authPanel);
 
   var GROUPS = [
     {
@@ -287,10 +285,12 @@
   }
 
   function authUrl(path) {
+    var config = getConfig();
     return config.url.replace(/\/$/, '') + path;
   }
 
   function authHeaders(token) {
+    var config = getConfig();
     var headers = {
       apikey: config.publishableKey,
       'Content-Type': 'application/json'
@@ -391,7 +391,7 @@
   function renderAuthPanel() {
     if (!model.isSupabaseConfigured()) {
       authPanel.remove();
-      updateConnectionText('Browser-only editing');
+      updateConnectionText('Publishing not connected');
       return;
     }
 
@@ -449,7 +449,7 @@
     if (!model.isSupabaseConfigured()) {
       content = model.loadLocal();
       remoteUnavailable = true;
-      setStatus('Editing in this browser', false);
+      setStatus('Publishing not connected', false);
       render();
       postPreview();
       return Promise.resolve();
@@ -465,8 +465,8 @@
       .catch(function () {
         content = model.loadLocal();
         remoteUnavailable = true;
-        setStatus('Could not load saved homepage. Editing in this browser.', false);
-        updateConnectionText('Browser-only editing');
+        setStatus('Could not load saved homepage. Editing here only.', false);
+        updateConnectionText('Publishing not connected');
       })
       .then(function () {
         render();
@@ -509,17 +509,17 @@
               }
               remoteUnavailable = true;
               model.saveLocal(content);
-              setStatus('Connection issue. Saved in this browser.', true);
-              notify('Saved here only', 'There was a connection issue, so the changes were saved in this browser.', 'warning');
-              updateConnectionText('Browser-only editing');
+              setStatus('Connection issue. Saved here only.', true);
+              notify('Saved here only', 'There was a connection issue, so the changes were saved only on this device.', 'warning');
+              updateConnectionText('Publishing not connected');
             });
         });
       });
     }
 
     content = model.saveLocal(content);
-    setStatus('Saved in this browser', true);
-    notify('Saved in this browser', 'Publishing is not connected right now.', 'warning');
+    setStatus('Publishing not connected', false);
+    notify('Not published', 'Publishing is not connected on this deployment. This change is saved only on this device.', 'warning');
     postPreview();
     return Promise.resolve();
   }
@@ -574,6 +574,15 @@
   });
   if (preview) preview.addEventListener('load', postPreview);
 
-  renderAuthPanel();
-  fetchUser().then(renderAuthPanel).then(loadInitialContent);
+  function start() {
+    remoteUnavailable = !model.isSupabaseConfigured();
+    if (overview && model.isSupabaseConfigured() && !authPanel.isConnected) overview.insertAdjacentElement('afterend', authPanel);
+    renderAuthPanel();
+    fetchUser().then(renderAuthPanel).then(loadInitialContent);
+  }
+
+  (model.ensureConfig ? model.ensureConfig() : Promise.resolve()).then(start);
 })();
+  function getConfig() {
+    return window.DOMIVISE_SUPABASE_CONFIG || {};
+  }
