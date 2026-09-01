@@ -16,37 +16,38 @@
       <a class="admin-brand" href="index.html" target="_blank" rel="noopener" aria-label="Open DomiVise homepage">
         <img class="admin-brand-logo" src="img/logo-white.svg" alt="DomiVise" />
       </a>
-      <p class="admin-sidebar-kicker">Content console</p>
+      <p class="admin-sidebar-kicker">Page editor</p>
       <nav class="admin-nav" aria-label="Admin sections">
-        <a href="#hero" class="is-active">Hero &amp; proposition</a>
-        <a href="#product">Product preview</a>
+        <a href="#hero" class="is-active">Top section</a>
+        <a href="#product">App preview</a>
         <a href="#sections">Page sections</a>
-        <a href="#forms">Application &amp; email</a>
-        <a href="#media">Images &amp; media</a>
+        <a href="#forms">Form &amp; emails</a>
+        <a href="#media">Images &amp; footer</a>
       </nav>
     </aside>
 
     <main class="admin-main">
       <header class="admin-topbar">
         <div>
-          <p class="admin-overline">DomiVise / Admin</p>
-          <h1>Shape the site.</h1>
+          <p class="admin-overline">DomiVise editor</p>
+          <h1>Edit your homepage.</h1>
         </div>
         <div class="admin-actions">
-          <span class="admin-save-state" id="saveState" role="status">Unsaved changes</span>
-          <button class="admin-button admin-button-quiet" id="resetBtn" type="button">Reset</button>
-          <button class="admin-button admin-button-primary" id="saveBtn" type="button">Publish changes</button>
+          <span class="admin-save-state" id="saveState" role="status">Ready</span>
+          <button class="admin-button admin-button-quiet" id="resetBtn" type="button">Start over</button>
+          <button class="admin-button admin-button-primary" id="saveBtn" type="button">Publish</button>
         </div>
       </header>
+      <div class="admin-toast-region" id="adminNotifications" aria-live="polite" aria-atomic="true"></div>
 
       <div class="admin-grid">
-        <section class="admin-editor" aria-label="Editable site content">
+        <section class="admin-editor" aria-label="Homepage editor">
           <div id="editorMount"></div>
         </section>
         <aside class="admin-preview-panel">
-          <div class="admin-preview-head"><div><p class="admin-overline">Live canvas</p><h2>Preview</h2></div><a href="index.html" target="_blank" rel="noopener">Open site ↗</a></div>
+          <div class="admin-preview-head"><div><p class="admin-overline">Live preview</p><h2>Preview</h2></div><a href="index.html" target="_blank" rel="noopener">Open homepage ↗</a></div>
           <div class="admin-preview-frame"><iframe id="sitePreview" title="Live DomiVise site preview" src="index.html?adminPreview=1"></iframe></div>
-          <p class="admin-preview-note">Preview updates as you type. Images can use hosted URLs or local uploads; hosted URLs are better for a shared Supabase-backed setup.</p>
+          <p class="admin-preview-note">Preview updates as you type.</p>
         </aside>
       </div>
     </main>

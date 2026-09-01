@@ -10,6 +10,7 @@
   var editor = document.getElementById('editorMount');
   var preview = document.getElementById('sitePreview');
   var saveState = document.getElementById('saveState');
+  var notifications = document.getElementById('adminNotifications');
   var connectionState = document.getElementById('adminConnectionState');
   var overview = document.getElementById('overview');
   var authPanel = document.createElement('section');
@@ -23,141 +24,105 @@
 
   var GROUPS = [
     {
-      id: 'hero', number: '01', title: 'Hero & proposition', description: 'The first message visitors see and the main conversion actions.',
+      id: 'hero', number: '01', title: 'Top section', description: 'Edit the first thing visitors see on the homepage.',
       fields: [
-        ['hero.eyebrow', 'Eyebrow', 'text'],
+        ['hero.eyebrow', 'Small heading', 'text'],
         ['hero.title', 'Main headline', 'textarea'],
-        ['hero.strapline', 'Supporting strapline', 'textarea'],
-        ['hero.description', 'Supporting description', 'textarea'],
-        ['hero.scope', 'Jurisdiction line', 'textarea'],
-        ['hero.primaryCta', 'Primary button', 'text'],
-        ['hero.secondaryCta', 'Secondary button', 'text'],
-        ['hero.bullets', 'Hero reassurance points', 'list'],
-        ['hero.mediaTag', 'Preview media label', 'text'],
+        ['hero.strapline', 'Text under the headline', 'textarea'],
+        ['hero.description', 'Intro paragraph', 'textarea'],
+        ['hero.scope', 'UK coverage line', 'textarea'],
+        ['hero.primaryCta', 'Main button text', 'text'],
+        ['hero.secondaryCta', 'Second button text', 'text'],
+        ['hero.bullets', 'Trust points', 'list'],
+        ['hero.mediaTag', 'Image label', 'text'],
         ['hero.cardCaption', 'Image caption', 'text'],
-        ['hero.statValue', 'Illustrative score', 'text'],
-        ['hero.statLabel', 'Score label', 'textarea-short']
+        ['hero.statValue', 'Score number', 'text'],
+        ['hero.statLabel', 'Score wording', 'textarea-short']
       ]
     },
     {
-      id: 'product', number: '02', title: 'Product preview', description: 'The dashboard mockup and the promise beside it.',
+      id: 'product', number: '02', title: 'App preview', description: 'Edit the example dashboard shown on the page.',
       fields: [
-        ['product.eyebrow', 'Section eyebrow', 'text'],
-        ['product.proposition', 'Core brand proposition', 'text'],
-        ['product.heading', 'Section heading', 'textarea'],
-        ['product.bodyOne', 'Description one', 'textarea'],
-        ['product.bodyTwo', 'Description two', 'textarea'],
-        ['product.previewLabel', 'Preview disclaimer', 'text'],
-        ['product.sampleName', 'Example greeting', 'text'],
-        ['product.samplePortfolio', 'Example portfolio', 'text'],
-        ['product.sampleBadge', 'Example badge', 'text'],
-        ['product.scoreValue', 'Example health score', 'text'],
+        ['product.eyebrow', 'Small heading', 'text'],
+        ['product.proposition', 'Short promise', 'text'],
+        ['product.heading', 'Heading', 'textarea'],
+        ['product.bodyOne', 'First paragraph', 'textarea'],
+        ['product.bodyTwo', 'Second paragraph', 'textarea'],
+        ['product.previewLabel', 'Small note above preview', 'text'],
+        ['product.sampleName', 'Greeting name', 'text'],
+        ['product.samplePortfolio', 'Portfolio line', 'text'],
+        ['product.sampleBadge', 'Badge text', 'text'],
+        ['product.scoreValue', 'Health score', 'text'],
         ['product.scoreTitle', 'Score title', 'text'],
-        ['product.scoreStatus', 'Score status', 'text'],
-        ['product.tip', 'Example Domi tip', 'textarea'],
-        { path: 'product.rows', label: 'Example dashboard rows', type: 'object-list', fields: [['title', 'Title'], ['detail', 'Detail'], ['pill', 'Status']] }
+        ['product.scoreStatus', 'Score message', 'text'],
+        ['product.tip', 'Tip text', 'textarea'],
+        { path: 'product.rows', label: 'Dashboard cards', type: 'object-list', fields: [['title', 'Top line'], ['detail', 'Small line'], ['pill', 'Badge']] }
       ]
     },
     {
-      id: 'sections', number: '03', title: 'Page sections', description: 'The problem, capabilities, Founding 100, health check and trust content.',
+      id: 'sections', number: '03', title: 'Page sections', description: 'Edit the main blocks visitors read as they scroll.',
       fields: [
-        { path: 'difference', label: 'The fragmentation problem', type: 'object', fields: [['heading', 'Heading'], ['rightNow', 'Right now', 'list'], ['withDomiVise', 'With DomiVise', 'list']] },
-        { path: 'features', label: 'Core capabilities', type: 'object', fields: [['eyebrow', 'Eyebrow'], ['heading', 'Heading'], ['intro', 'Intro'], ['cards', 'Capability cards', 'object-list', [['title', 'Title'], ['body', 'Description']]]] },
-        { path: 'testimonial', label: 'Founder quote', type: 'object', fields: [['quote', 'Quote'], ['author', 'Author'], ['role', 'Role']] },
-        { path: 'founding', label: 'Founding 100', type: 'object', fields: [['label', 'Eyebrow'], ['heading', 'Heading'], ['intro', 'Intro'], ['limit', 'Member limit'], ['benefits', 'Benefits', 'object-list', [['title', 'Title'], ['body', 'Description']]], ['cta', 'Button'], ['note', 'Fine print']] },
-        { path: 'health', label: 'Five-Minute Health Check', type: 'object', fields: [['label', 'Eyebrow'], ['heading', 'Heading'], ['body', 'Description'], ['chips', 'Topics', 'list'], ['meta', 'Meta line'], ['cta', 'Button'], ['note', 'Availability note'], ['score', 'Example score'], ['caption', 'Score caption']] },
-        { path: 'trust', label: 'Trust section', type: 'object', fields: [['statusLabel', 'Status label'], ['statusBody', 'Status message'], ['whyLabel', 'Trust heading'], ['whyBody', 'Trust message'], ['cards', 'Trust cards', 'object-list', [['title', 'Title'], ['body', 'Description']]]] }]
+        { path: 'difference', label: 'Problem and solution', type: 'object', fields: [['heading', 'Heading'], ['rightNow', 'Current problems', 'list'], ['withDomiVise', 'How DomiVise helps', 'list']] },
+        { path: 'features', label: 'What DomiVise helps with', type: 'object', fields: [['eyebrow', 'Small heading'], ['heading', 'Heading'], ['intro', 'Intro paragraph'], ['cards', 'Help cards', 'object-list', [['title', 'Card title'], ['body', 'Card text']]]] },
+        { path: 'testimonial', label: 'Founder quote', type: 'object', fields: [['quote', 'Quote'], ['author', 'Author'], ['role', 'Job title']] },
+        { path: 'founding', label: 'Founding 100', type: 'object', fields: [['label', 'Small heading'], ['heading', 'Heading'], ['intro', 'Intro paragraph'], ['limit', 'Places message'], ['benefits', 'Benefits', 'object-list', [['title', 'Benefit title'], ['body', 'Benefit text']]], ['cta', 'Button text'], ['note', 'Small note']] },
+        { path: 'health', label: 'Health check', type: 'object', fields: [['label', 'Small heading'], ['heading', 'Heading'], ['body', 'Paragraph'], ['chips', 'Topics'], ['meta', 'Small details line'], ['cta', 'Button text'], ['note', 'Small note'], ['score', 'Example score'], ['caption', 'Score caption']] },
+        { path: 'trust', label: 'Trust section', type: 'object', fields: [['statusLabel', 'Small heading'], ['statusBody', 'Status message'], ['whyLabel', 'Trust heading'], ['whyBody', 'Trust paragraph'], ['cards', 'Trust cards', 'object-list', [['title', 'Card title'], ['body', 'Card text']]]] }]
     },
     {
-      id: 'forms', number: '04', title: 'Application & email', description: 'Signup copy and public form settings. Resend credentials and notification recipients stay server-side.',
+      id: 'forms', number: '04', title: 'Form and emails', description: 'Edit the signup form and the emails people receive after applying.',
       fields: [
-        ['join.eyebrow', 'Form eyebrow', 'text'],
+        ['join.eyebrow', 'Small heading', 'text'],
         ['join.heading', 'Form heading', 'textarea'],
-        ['join.body', 'Form intro', 'textarea'],
-        ['join.bullets', 'Benefits beside the form', 'list'],
+        ['join.body', 'Intro paragraph', 'textarea'],
+        ['join.bullets', 'Benefits next to the form', 'list'],
         ['join.nameLabel', 'Name label', 'text'],
         ['join.namePlaceholder', 'Name placeholder', 'text'],
         ['join.emailLabel', 'Email label', 'text'],
         ['join.emailPlaceholder', 'Email placeholder', 'text'],
-        ['join.portfolioLabel', 'Portfolio label', 'text'],
-        ['join.portfolioPlaceholder', 'Portfolio placeholder', 'text'],
-        { path: 'join.portfolioOptions', label: 'Portfolio options', type: 'object-list', fields: [['value', 'Submitted value'], ['label', 'Visible label']] },
+        ['join.portfolioLabel', 'Property count label', 'text'],
+        ['join.portfolioPlaceholder', 'Property count prompt', 'text'],
         ['join.challengeLabel', 'Challenge label', 'text'],
         ['join.challengePlaceholder', 'Challenge placeholder', 'text'],
-        ['join.privacyNoticeVersion', 'Privacy notice version', 'text'],
-        ['join.programmeCommunicationsNotice', 'Programme communications notice', 'textarea'],
-        ['join.consentNote', 'Required email notice', 'textarea'],
-        ['join.marketingConsent', 'Optional marketing consent', 'textarea'],
+        ['join.consentNote', 'Required email note', 'textarea'],
+        ['join.marketingConsent', 'Marketing checkbox text', 'textarea'],
         ['join.submit', 'Submit button', 'text'],
         ['join.finePrint', 'Privacy line', 'textarea'],
-        ['join.successHeading', 'Success heading', 'text'],
-        ['join.successBody', 'Success message', 'textarea'],
-        ['join.successContactLabel', 'Success contact label', 'text'],
+        ['join.successHeading', 'Thank-you heading', 'text'],
+        ['join.successBody', 'Thank-you message', 'textarea'],
+        ['join.successContactLabel', 'Contact line before email', 'text'],
         ['site.contactEmail', 'Public contact email', 'email'],
-        ['site.formEndpoint', 'Signup API endpoint', 'url'],
-        ['email.applicantSubject', 'Confirmation email subject', 'text'],
-        ['email.applicantHeading', 'Confirmation email heading', 'text'],
-        ['email.applicantGreeting', 'Confirmation email greeting', 'text'],
-        ['email.applicantBody', 'Confirmation email body', 'textarea'],
-        ['email.applicantSignature', 'Confirmation email signature', 'textarea'],
-        ['email.notificationSubject', 'Internal notification subject', 'text'],
-        ['email.notificationHeading', 'Internal notification heading', 'text'],
-        ['email.notificationIntro', 'Internal notification intro', 'textarea'],
-        { path: 'faq', label: 'FAQs', type: 'object', fields: [['eyebrow', 'Eyebrow'], ['heading', 'Heading'], ['note', 'Intro'], ['items', 'Questions and answers', 'object-list', [['question', 'Question'], ['answer', 'Answer']]]] }
+        ['email.applicantSubject', 'Email subject for applicants', 'text'],
+        ['email.applicantHeading', 'Email heading for applicants', 'text'],
+        ['email.applicantGreeting', 'Email greeting', 'text'],
+        ['email.applicantBody', 'Email message for applicants', 'textarea'],
+        ['email.applicantSignature', 'Email sign-off', 'textarea'],
+        ['email.notificationSubject', 'Email subject for you', 'text'],
+        ['email.notificationHeading', 'Email heading for you', 'text'],
+        ['email.notificationIntro', 'Short note for you', 'textarea'],
+        { path: 'faq', label: 'Questions and answers', type: 'object', fields: [['eyebrow', 'Small heading'], ['heading', 'Heading'], ['note', 'Intro paragraph'], ['items', 'Questions and answers', 'object-list', [['question', 'Question'], ['answer', 'Answer']]]] }
       ]
     },
     {
-      id: 'media', number: '05', title: 'Images, metadata & footer', description: 'Upload imagery and edit search/social metadata, links and footer copy.',
+      id: 'media', number: '05', title: 'Images and footer', description: 'Upload page images and edit the footer text and social links.',
       fields: [
         ['hero.backgroundImage', 'Hero background image', 'image'],
-        ['hero.video', 'Hero video URL', 'url'],
-        ['hero.videoPoster', 'Hero video poster', 'image'],
+        ['hero.videoPoster', 'Hero video image', 'image'],
         ['hero.cardImage', 'Hero card image', 'image'],
         ['testimonial.image', 'Testimonial image', 'image'],
         ['faq.imageOne', 'FAQ image one', 'image'],
         ['faq.imageTwo', 'FAQ image two', 'image'],
-        ['site.pageTitle', 'Browser/page title', 'text'],
-        ['site.metaDescription', 'Meta description', 'textarea'],
-        ['site.canonicalUrl', 'Canonical URL', 'url'],
-        ['site.ogTitle', 'Social title', 'text'],
-        ['site.ogDescription', 'Social description', 'textarea'],
-        ['site.ogUrl', 'OpenGraph URL', 'url'],
-        ['site.socialImage', 'Social preview image', 'image'],
-        ['site.twitterTitle', 'Twitter title', 'text'],
-        ['site.twitterDescription', 'Twitter description', 'textarea'],
-        ['site.twitterImage', 'Twitter image', 'image'],
-        ['site.organizationUrl', 'JSON-LD organization URL', 'url'],
-        ['site.organizationDescription', 'JSON-LD organization description', 'textarea'],
-        ['site.organizationEmail', 'JSON-LD organization email', 'email'],
-        ['site.instagram', 'Instagram URL', 'url'],
-        ['site.linkedin', 'LinkedIn URL', 'url'],
-        ['site.navPlatformLabel', 'Nav platform label', 'text'],
-        ['site.navFeaturesLabel', 'Nav features label', 'text'],
-        ['site.navFoundingLabel', 'Nav Founding 100 label', 'text'],
-        ['site.navHealthLabel', 'Nav health check label', 'text'],
-        ['site.navFaqLabel', 'Nav FAQ label', 'text'],
-        ['site.navCtaLabel', 'Nav CTA label', 'text'],
-        ['site.footerPlatformLabel', 'Footer platform label', 'text'],
-        ['site.footerFeaturesLabel', 'Footer features label', 'text'],
-        ['site.footerFoundingLabel', 'Footer Founding 100 label', 'text'],
-        ['site.footerJoinLabel', 'Footer join label', 'text'],
-        ['site.footerHealthLabel', 'Footer health check label', 'text'],
-        ['site.footerFaqLabel', 'Footer FAQ label', 'text'],
-        ['site.footerAdminLabel', 'Footer admin label', 'text'],
+        ['site.instagram', 'Instagram link', 'url'],
+        ['site.linkedin', 'LinkedIn link', 'url'],
         ['site.footerContactLabel', 'Footer contact heading', 'text'],
-        ['site.homeLabel', 'Home link label', 'text'],
-        ['site.instagramLabel', 'Instagram link label', 'text'],
-        ['site.linkedinLabel', 'LinkedIn link label', 'text'],
-        ['site.privacyPolicyLabel', 'Privacy link label', 'text'],
-        ['site.termsOfUseLabel', 'Terms link label', 'text'],
-        ['site.footerCompanyDetails', 'Footer company details', 'textarea'],
-        ['site.footerCredentialOne', 'Footer credential one', 'textarea'],
-        ['site.footerCredentialTwo', 'Footer credential two', 'textarea'],
-        ['site.footerCredentialThree', 'Footer credential three', 'textarea'],
+        ['site.footerCompanyDetails', 'Company details', 'textarea'],
+        ['site.footerCredentialOne', 'First footer note', 'textarea'],
+        ['site.footerCredentialTwo', 'Second footer note', 'textarea'],
+        ['site.footerCredentialThree', 'Third footer note', 'textarea'],
         ['site.footerCredit', 'Footer credit line', 'text'],
-        ['site.footerTagline', 'Footer brand tagline', 'text'],
+        ['site.footerTagline', 'Large footer tagline', 'text'],
         ['site.copyright', 'Copyright line', 'text'],
-        ['site.logoHomeLabel', 'Logo home aria label', 'text']
+        ['site.logoHomeLabel', 'Logo link label', 'text']
       ]
     }
   ];
@@ -262,11 +227,23 @@
     saveState.classList.toggle('is-saved', Boolean(saved));
   }
 
+  function notify(title, message, tone) {
+    if (!notifications) return;
+    var notice = document.createElement('div');
+    notice.className = 'admin-toast admin-toast-' + (tone || 'success');
+    notice.innerHTML = '<strong>' + escapeHtml(title) + '</strong>' + escapeHtml(message || '');
+    notifications.replaceChildren(notice);
+    clearTimeout(notify.timer);
+    notify.timer = setTimeout(function () {
+      if (notice.isConnected) notice.remove();
+    }, 5000);
+  }
+
   function setDirty() {
-    setStatus('Unsaved changes', false);
+    setStatus('Changes not saved yet', false);
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
-      setStatus(remoteUnavailable ? 'Ready to save locally' : 'Ready to publish', false);
+      setStatus(remoteUnavailable ? 'Ready to save in this browser' : 'Ready to publish', false);
     }, 800);
   }
 
@@ -414,7 +391,7 @@
   function renderAuthPanel() {
     if (!model.isSupabaseConfigured()) {
       authPanel.remove();
-      updateConnectionText('Local fallback');
+      updateConnectionText('Browser-only editing');
       return;
     }
 
@@ -426,20 +403,20 @@
 
     if (session && currentUser) {
       var admin = isAdminUser(currentUser);
-      authPanel.innerHTML = '<div><strong>' + (admin ? 'Signed in as admin' : 'Signed in without admin access') + '</strong><p>' + escapeHtml(currentUser.email || 'Authenticated user') + (admin ? ' can publish homepage content.' : ' cannot publish until app metadata includes role admin.') + '</p></div><button class="admin-button admin-button-quiet" id="signOutBtn" type="button">Sign out</button>';
+      authPanel.innerHTML = '<div><strong>' + (admin ? 'Signed in' : 'This account cannot publish') + '</strong><p>' + escapeHtml(currentUser.email || 'Signed-in account') + (admin ? ' can publish homepage changes.' : ' needs publishing access before changes can go live.') + '</p></div><button class="admin-button admin-button-quiet" id="signOutBtn" type="button">Sign out</button>';
       document.getElementById('signOutBtn').addEventListener('click', function () {
         storeSession(null);
         currentUser = null;
         renderAuthPanel();
         setStatus('Signed out', false);
       });
-      updateConnectionText(admin ? 'Supabase admin' : 'Supabase signed in');
+      updateConnectionText(admin ? 'Signed in' : 'No publishing access');
       return;
     }
 
     authPanel.innerHTML = [
       '<form class="admin-login" id="adminLogin">',
-      '<div><strong>Sign in to publish</strong><p>Use a Supabase Auth account whose app metadata has <code>role: "admin"</code>.</p></div>',
+      '<div><strong>Sign in to publish</strong><p>Use your DomiVise admin email and password.</p></div>',
       '<label>Email<input class="admin-control" name="email" type="email" required autocomplete="email" /></label>',
       '<label>Password<input class="admin-control" name="password" type="password" required autocomplete="current-password" /></label>',
       '<button class="admin-button admin-button-primary" type="submit">Sign in</button>',
@@ -455,13 +432,13 @@
         .then(fetchUser)
         .then(function (user) {
           renderAuthPanel();
-          setStatus(isAdminUser(user) ? 'Signed in. Ready to publish.' : 'Signed in, but admin role is missing.', isAdminUser(user));
+          setStatus(isAdminUser(user) ? 'Signed in. Ready to publish.' : 'This account cannot publish.', isAdminUser(user));
         })
         .catch(function () {
           setStatus('Sign-in failed', false);
         });
     });
-    updateConnectionText('Supabase auth required');
+    updateConnectionText('Sign in required');
   }
 
   function updateConnectionText(value) {
@@ -472,24 +449,24 @@
     if (!model.isSupabaseConfigured()) {
       content = model.loadLocal();
       remoteUnavailable = true;
-      setStatus('Supabase unavailable. Editing local fallback.', false);
+      setStatus('Editing in this browser', false);
       render();
       postPreview();
       return Promise.resolve();
     }
 
-    setStatus('Loading published content...', false);
+    setStatus('Loading saved homepage...', false);
     return model.fetchPublished()
       .then(function (remoteContent) {
         content = remoteContent;
         remoteUnavailable = false;
-        setStatus('Loaded from Supabase', true);
+        setStatus('Homepage loaded', true);
       })
       .catch(function () {
         content = model.loadLocal();
         remoteUnavailable = true;
-        setStatus('Supabase unavailable. Editing local fallback.', false);
-        updateConnectionText('Local fallback');
+        setStatus('Could not load saved homepage. Editing in this browser.', false);
+        updateConnectionText('Browser-only editing');
       })
       .then(function () {
         render();
@@ -503,33 +480,38 @@
         if (!activeSession) {
           renderAuthPanel();
           setStatus('Sign in to publish', false);
+          notify('Sign in needed', 'Use your admin email and password before publishing.', 'warning');
           return null;
         }
         return (currentUser ? Promise.resolve(currentUser) : fetchUser()).then(function (user) {
           renderAuthPanel();
           if (!isAdminUser(user)) {
-            setStatus('Admin role required', false);
+            setStatus('This account cannot publish', false);
+            notify('Not published', 'This account does not have permission to publish changes.', 'error');
             return null;
           }
-          setStatus('Publishing to Supabase...', false);
+          setStatus('Publishing...', false);
           return model.saveRemote(content, activeSession.access_token)
             .then(function (saved) {
               content = saved;
               render();
               postPreview();
-              setStatus('Published to Supabase', true);
+              setStatus('Published', true);
+              notify('Changes published', 'Your homepage has been updated.', 'success');
               remoteUnavailable = false;
-              updateConnectionText('Supabase connected');
+              updateConnectionText('Published');
             })
             .catch(function (error) {
               if (error.status === 401 || error.status === 403) {
-                setStatus('Supabase rejected the publish', false);
+                setStatus('Publish failed. Check your account access.', false);
+                notify('Publish failed', 'Check your account access and try again.', 'error');
                 return;
               }
               remoteUnavailable = true;
               model.saveLocal(content);
-              setStatus('Supabase unavailable. Saved locally.', true);
-              updateConnectionText('Local fallback');
+              setStatus('Connection issue. Saved in this browser.', true);
+              notify('Saved here only', 'There was a connection issue, so the changes were saved in this browser.', 'warning');
+              updateConnectionText('Browser-only editing');
             });
         });
       });
@@ -537,6 +519,7 @@
 
     content = model.saveLocal(content);
     setStatus('Saved in this browser', true);
+    notify('Saved in this browser', 'Publishing is not connected right now.', 'warning');
     postPreview();
     return Promise.resolve();
   }
@@ -546,11 +529,12 @@
 
   var resetBtn = document.getElementById('resetBtn');
   if (resetBtn) resetBtn.addEventListener('click', function () {
-    if (!window.confirm('Reset all editable content to the current site defaults?')) return;
+    if (!window.confirm('Start over and reset the editor to the original homepage text?')) return;
     content = model.clone(model.DEFAULT_CONTENT);
     render();
     postPreview();
-    setStatus(remoteUnavailable ? 'Reset to defaults. Save locally to keep it.' : 'Reset to defaults. Publish to keep it.', false);
+    setStatus(remoteUnavailable ? 'Reset complete. Save to keep it here.' : 'Reset complete. Publish to make it live.', false);
+    notify('Editor reset', remoteUnavailable ? 'The original homepage text is back in the editor.' : 'Publish when you are ready to make this reset live.', 'warning');
   });
 
   var exportBtn = document.getElementById('exportBtn');

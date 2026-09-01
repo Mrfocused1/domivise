@@ -6,10 +6,10 @@ const HOMEPAGE_ID = 'homepage';
 const DEFAULT_EMAIL_CONTENT = {
   applicantSubject: 'Welcome to the DomiVise Founding 100',
   applicantHeading: 'Welcome to the DomiVise Founding 100',
-  applicantGreeting: 'Hi {name},',
+  applicantGreeting: 'Hi [name],',
   applicantBody: 'Thanks for applying to join the DomiVise Founding 100.\n\nWe have received your details and will contact you about private-beta access and next steps as the product comes together.\n\nDomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.',
   applicantSignature: 'Derryal Swaby\nFounder, DomiVise',
-  notificationSubject: 'New Founding 100 application from {name}',
+  notificationSubject: 'New Founding 100 application from [name]',
   notificationHeading: 'New Founding 100 application',
   notificationIntro: 'A new Founding 100 application was submitted from the landing page.'
 };
@@ -39,9 +39,10 @@ function cleanTemplate(value, fallback, maxLength) {
 }
 
 function interpolate(value, variables) {
-  return String(value || '').replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => (
-    variables[key] == null ? '' : String(variables[key])
-  ));
+  return String(value || '').replace(/\{([a-zA-Z0-9_]+)\}|\[([a-zA-Z0-9_]+)\]/g, (_, braceKey, bracketKey) => {
+    const key = braceKey || bracketKey;
+    return variables[key] == null ? '' : String(variables[key]);
+  });
 }
 
 function paragraphs(value) {

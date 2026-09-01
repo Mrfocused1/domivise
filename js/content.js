@@ -192,10 +192,10 @@
     email: {
       applicantSubject: 'Welcome to the DomiVise Founding 100',
       applicantHeading: 'Welcome to the DomiVise Founding 100',
-      applicantGreeting: 'Hi {name},',
+      applicantGreeting: 'Hi [name],',
       applicantBody: 'Thanks for applying to join the DomiVise Founding 100.\n\nWe have received your details and will contact you about private-beta access and next steps as the product comes together.\n\nDomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.',
       applicantSignature: 'Derryal Swaby\nFounder, DomiVise',
-      notificationSubject: 'New Founding 100 application from {name}',
+      notificationSubject: 'New Founding 100 application from [name]',
       notificationHeading: 'New Founding 100 application',
       notificationIntro: 'A new Founding 100 application was submitted from the landing page.'
     },
