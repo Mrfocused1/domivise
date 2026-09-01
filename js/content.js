@@ -439,11 +439,11 @@
     setLinkText('.nav_links a[href="#health-check"], .nav_overlay a[href="#health-check"]', content.site.navHealthLabel);
     setLinkText('.nav_links a[href="#faq"], .nav_overlay a[href="#faq"]', content.site.navFaqLabel);
     setButton('.nav .btn_nav-cta', content.site.navCtaLabel || content.hero.primaryCta);
-    setLinkText('.nav_overlay .is-secondary a[href="index.html"]', content.site.homeLabel);
+    setLinkText('.nav_overlay .is-secondary a[href="/"]', content.site.homeLabel);
     setLinkText('[data-social-link="instagram"]', content.site.instagramLabel);
     setLinkText('[data-social-link="linkedin"]', content.site.linkedinLabel);
-    setLinkText('.nav_overlay .is-secondary a[href="privacy.html"], .footer_nav-small a[href="privacy.html"]', content.site.privacyPolicyLabel);
-    setLinkText('.nav_overlay .is-secondary a[href="terms.html"], .footer_nav-small a[href="terms.html"]', content.site.termsOfUseLabel);
+    setLinkText('.nav_overlay .is-secondary a[href="/privacy"], .footer_nav-small a[href="/privacy"]', content.site.privacyPolicyLabel);
+    setLinkText('.nav_overlay .is-secondary a[href="/terms"], .footer_nav-small a[href="/terms"]', content.site.termsOfUseLabel);
 
     setLabel('.hero_copy .category-label', content.hero.eyebrow);
     setText('.hero_copy h1', content.hero.title, true);
@@ -556,7 +556,7 @@
     setText('.dv-consent span', content.join.marketingConsent);
     setButton('#submitBtn', content.join.submit);
     var finePrint = document.querySelector('.dv-center-text');
-    if (finePrint) finePrint.innerHTML = escapeHtml(content.join.finePrint).replace('{privacy}', '<a href="privacy.html">privacy policy</a>');
+    if (finePrint) finePrint.innerHTML = escapeHtml(content.join.finePrint).replace('{privacy}', '<a href="/privacy">privacy policy</a>');
     setText('#joinSuccess h3', content.join.successHeading);
     setText('#joinSuccess > p:first-of-type', content.join.successBody);
     var successContact = document.querySelector('#joinSuccess > p:last-child');
@@ -602,7 +602,7 @@
     setLinkText('.footer_nav-main a[href="#join"]', content.site.footerJoinLabel);
     setLinkText('.footer_nav-small a[href="#health-check"]', content.site.footerHealthLabel);
     setLinkText('.footer_nav-small a[href="#faq"]', content.site.footerFaqLabel);
-    setLinkText('.footer_nav-small a[href="admin.html"]', content.site.footerAdminLabel);
+    setLinkText('.footer_nav-small a[href="/admin"]', content.site.footerAdminLabel);
     setText('.footer_contact > .label', content.site.footerContactLabel);
     setText('.footer_contact > p:nth-of-type(2)', content.site.footerCompanyDetails, true);
     setText('.footer_credentials p:nth-child(1)', content.site.footerCredentialOne, true);

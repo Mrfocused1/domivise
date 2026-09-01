@@ -18,6 +18,7 @@ body { margin: 0; min-width: 320px; background: var(--admin-cream); color: var(-
 button, input, textarea, select { font: inherit; }
 button, label { cursor: pointer; }
 a { color: inherit; }
+.admin-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 .admin-shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
 .admin-sidebar { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; padding: 30px 22px 22px; background: var(--admin-green); color: var(--admin-cream); }
@@ -67,6 +68,8 @@ a { color: inherit; }
 .admin-login { width: 100%; display: grid; grid-template-columns: minmax(220px, 1fr) minmax(180px, .6fr) minmax(160px, .5fr) auto; align-items: end; gap: 12px; }
 .admin-login label { display: grid; gap: 7px; color: var(--admin-muted); font: 600 12px/1.3 "Lexend", sans-serif; letter-spacing: 0; }
 .admin-login > div { align-self: center; }
+.admin-login-secondary { justify-self: start; border: 0; padding: 0; background: transparent; color: var(--admin-muted); font: 600 13px/1.2 "Lexend", sans-serif; text-decoration: underline; text-underline-offset: 3px; }
+.admin-login-secondary:hover { color: var(--admin-green); }
 
 .admin-grid { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(390px, .76fr); align-items: start; gap: 24px; max-width: 1450px; }
 .admin-editor { min-width: 0; }
@@ -107,12 +110,14 @@ a { color: inherit; }
 .admin-body.is-auth-locked .admin-grid { display: none; }
 .admin-body.is-auth-locked .admin-main { max-width: 560px; min-height: 100vh; margin: 0 auto; padding: 38px 20px; display: grid; align-content: center; }
 .admin-body.is-auth-locked .admin-topbar { position: static; min-height: 0; display: block; padding: 0 0 22px; border: 0; background: transparent; backdrop-filter: none; }
-.admin-body.is-auth-locked .admin-topbar h1 { max-width: 430px; font-size: 34px; }
+.admin-body.is-auth-locked .admin-overline { display: none; }
+.admin-body.is-auth-locked .admin-topbar h1 { max-width: 430px; margin: 0; font-size: 34px; }
 .admin-body.is-auth-locked .admin-auth-panel { display: block; margin: 0; padding: 24px; box-shadow: var(--admin-shadow); }
 .admin-body.is-auth-locked .admin-auth-panel strong { font-size: 17px; }
 .admin-body.is-auth-locked .admin-auth-panel p { font-size: 14px; }
 .admin-body.is-auth-locked .admin-login { grid-template-columns: 1fr; }
 .admin-body.is-auth-locked .admin-login .admin-button { width: 100%; min-height: 46px; margin-top: 4px; }
+.admin-body.is-auth-locked .admin-login-secondary { justify-self: center; margin-top: 2px; }
 
 @media (max-width: 1120px) {
   .admin-grid { grid-template-columns: 1fr; }

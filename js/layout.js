@@ -2,10 +2,15 @@
   'use strict';
 
   var PAGES = {
-    '/': 'index.html',
-    '/index.html': 'index.html',
-    '/privacy': 'privacy.html',
-    '/terms': 'terms.html'
+    '/': '/',
+    '/index': '/',
+    '/index.html': '/',
+    '/privacy': '/privacy',
+    '/privacy.html': '/privacy',
+    '/terms': '/terms',
+    '/terms.html': '/terms',
+    '/admin': '/admin',
+    '/admin.html': '/admin'
   };
 
   function href(path) {
@@ -106,7 +111,7 @@
             '<li><a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a></li>' +
             '<li><a data-underline data-social-link="instagram" href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
             '<li><a data-underline data-social-link="linkedin" href="https://www.linkedin.com/company/domivise-ltd/" target="_blank" rel="noopener">LinkedIn</a></li>' +
-            '<li><a data-underline href="admin.html">Admin</a></li>' +
+            '<li><a data-underline href="' + href('/admin') + '">Admin</a></li>' +
             '<li><a data-underline href="' + href('/privacy') + '">Privacy Policy</a></li>' +
             '<li><a data-underline href="' + href('/terms') + '">Terms of Use</a></li>' +
           '</ul>' +

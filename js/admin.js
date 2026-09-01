@@ -242,7 +242,7 @@
 
   function showLoginView(title) {
     setLocked(true);
-    setHeader(title || 'Sign in to edit your homepage.', 'DomiVise admin');
+    setHeader(title || 'Sign in', '');
     if (editor) editor.innerHTML = '';
   }
 
@@ -370,6 +370,17 @@
     });
   }
 
+  function recoverPassword(email) {
+    return fetch(authUrl('/auth/v1/recover'), {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ email: email })
+    }).then(function (response) {
+      if (!response.ok) throw new Error('password_recovery_failed');
+      return response.json().catch(function () { return {}; });
+    });
+  }
+
   function refreshSession() {
     if (!session || !session.refresh_token) return Promise.resolve(null);
     return fetch(authUrl('/auth/v1/token?grant_type=refresh_token'), {
@@ -428,8 +439,8 @@
     }
 
     if (!model.isSupabaseConfigured()) {
-      showLoginView('Admin sign-in is unavailable.');
-      authPanel.innerHTML = '<div><strong>Publishing is not connected</strong><p>The admin editor needs the Supabase public key before anyone can sign in.</p></div>';
+      showLoginView('Sign in');
+      authPanel.innerHTML = '';
       updateConnectionText('Publishing not connected');
       setStatus('Publishing not connected', false);
       return;
@@ -437,13 +448,13 @@
 
     if (session && currentUser) {
       var admin = isAdminUser(currentUser);
-      if (!admin) showLoginView('This account cannot edit the homepage.');
+      if (!admin) showLoginView('Sign in');
       else showEditorView();
       authPanel.innerHTML = '<div><strong>' + (admin ? 'Signed in' : 'This account cannot publish') + '</strong><p>' + escapeHtml(currentUser.email || 'Signed-in account') + (admin ? ' can publish homepage changes.' : ' needs publishing access before changes can go live.') + '</p></div><button class="admin-button admin-button-quiet" id="signOutBtn" type="button">Sign out</button>';
       document.getElementById('signOutBtn').addEventListener('click', function () {
         storeSession(null);
         currentUser = null;
-        showLoginView('Sign in to edit your homepage.');
+        showLoginView('Sign in');
         renderAuthPanel();
         setStatus('Signed out', false);
       });
@@ -451,16 +462,17 @@
       return;
     }
 
-    showLoginView('Sign in to edit your homepage.');
+    showLoginView('Sign in');
     authPanel.innerHTML = [
       '<form class="admin-login" id="adminLogin">',
-      '<div><strong>Sign in to publish</strong><p>Use your DomiVise admin email and password.</p></div>',
-      '<label>Email<input class="admin-control" name="email" type="email" required autocomplete="email" /></label>',
-      '<label>Password<input class="admin-control" name="password" type="password" required autocomplete="current-password" /></label>',
+      '<label><span class="admin-sr-only">Email</span><input class="admin-control" name="email" type="email" required autocomplete="email" aria-label="Email" /></label>',
+      '<label><span class="admin-sr-only">Password</span><input class="admin-control" name="password" type="password" required autocomplete="current-password" aria-label="Password" /></label>',
       '<button class="admin-button admin-button-primary" type="submit">Sign in</button>',
+      '<button class="admin-login-secondary" id="forgotPasswordBtn" type="button">Forgot password?</button>',
       '</form>'
     ].join('');
-    document.getElementById('adminLogin').addEventListener('submit', function (event) {
+    var loginForm = document.getElementById('adminLogin');
+    loginForm.addEventListener('submit', function (event) {
       event.preventDefault();
       var form = event.currentTarget;
       var email = form.email.value.trim();
@@ -477,8 +489,25 @@
           setStatus('This account cannot publish.', false);
         })
         .catch(function () {
-          showLoginView('Sign in to edit your homepage.');
+          showLoginView('Sign in');
           setStatus('Sign-in failed', false);
+        });
+    });
+    document.getElementById('forgotPasswordBtn').addEventListener('click', function () {
+      var email = loginForm.email.value.trim();
+      if (!email) {
+        setStatus('Enter your email first', false);
+        return;
+      }
+      setStatus('Sending reset link...', false);
+      recoverPassword(email)
+        .then(function () {
+          setStatus('Reset link sent', true);
+          notify('Reset link sent', 'Check your email for the password reset link.', 'success');
+        })
+        .catch(function () {
+          setStatus('Could not send reset link', false);
+          notify('Reset failed', 'Check the email address and try again.', 'error');
         });
     });
     updateConnectionText('Sign in required');
@@ -490,7 +519,7 @@
 
   function loadInitialContent() {
     if (!isAdminUser(currentUser)) {
-      showLoginView('Sign in to edit your homepage.');
+      showLoginView('Sign in');
       setStatus(model.isSupabaseConfigured() ? 'Sign in required' : 'Publishing not connected', false);
       return Promise.resolve();
     }
@@ -531,7 +560,7 @@
       return ensureSession().then(function (activeSession) {
         if (!activeSession) {
           renderAuthPanel();
-          setStatus('Sign in to publish', false);
+          setStatus('Sign in', false);
           notify('Sign in needed', 'Use your admin email and password before publishing.', 'warning');
           return null;
         }
