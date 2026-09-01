@@ -101,9 +101,10 @@ function readRequestBody(req) {
 }
 
 function resolveSupabaseConfig() {
+  const clean = (value) => (typeof value === 'string' ? value.trim() : '');
   return {
-    url: process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.DOMIVISE_SUPABASE_URL,
-    key: process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.DOMIVISE_SUPABASE_PUBLISHABLE_KEY
+    url: clean(process.env.SUPABASE_URL) || clean(process.env.NEXT_PUBLIC_SUPABASE_URL) || clean(process.env.DOMIVISE_SUPABASE_URL),
+    key: clean(process.env.SUPABASE_PUBLISHABLE_KEY) || clean(process.env.SUPABASE_ANON_KEY) || clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || clean(process.env.DOMIVISE_SUPABASE_PUBLISHABLE_KEY)
   };
 }
 
