@@ -11,19 +11,49 @@
       metaDescription: 'DomiVise brings portfolio management, rent, compliance, maintenance, documents and guidance into one calm platform for landlords across England, Wales, Scotland and Northern Ireland.',
       ogTitle: 'DomiVise | Intelligent Property Management for Landlords Across the UK',
       ogDescription: 'Know what your rental property needs before it becomes a problem. Built for landlords across England, Wales, Scotland and Northern Ireland.',
+      ogUrl: 'https://domivise.co.uk/',
       socialImage: 'https://domivise.co.uk/img/social-preview.png',
       canonicalUrl: 'https://domivise.co.uk/',
       ogImageAlt: 'DomiVise branded preview: Know what your rental property needs before it becomes a problem.',
+      twitterTitle: 'DomiVise | Intelligent Property Management for Landlords Across the UK',
+      twitterDescription: 'Every property task. One connected platform. Built for landlords across the UK.',
+      twitterImage: 'https://domivise.co.uk/img/social-preview.png',
+      twitterImageAlt: 'DomiVise branded preview: Know what your rental property needs before it becomes a problem.',
+      organizationUrl: 'https://domivise.co.uk/',
+      organizationDescription: 'Intelligent property management and landlord advisory platform built for landlords across England, Wales, Scotland and Northern Ireland.',
+      organizationEmail: 'hello@domivise.co.uk',
       contactEmail: 'hello@domivise.co.uk',
       formEndpoint: '/api/founding-100',
       instagram: 'https://instagram.com/domivise',
       linkedin: 'https://www.linkedin.com/company/domivise-ltd/',
+      navPlatformLabel: 'What is DomiVise',
+      navFeaturesLabel: 'How it helps',
+      navFoundingLabel: 'Founding 100',
+      navHealthLabel: 'Health check',
+      navFaqLabel: 'FAQ',
+      navCtaLabel: 'Join the Founding 100',
+      footerPlatformLabel: 'What is DomiVise',
+      footerFeaturesLabel: 'How it helps',
+      footerFoundingLabel: 'Founding 100',
+      footerJoinLabel: 'Join',
+      footerHealthLabel: 'Five-Minute Health Check',
+      footerFaqLabel: 'FAQ',
+      footerAdminLabel: 'Admin',
+      footerContactLabel: 'Contact us',
+      homeLabel: 'Home',
+      instagramLabel: 'Instagram',
+      linkedinLabel: 'LinkedIn',
+      privacyPolicyLabel: 'Privacy Policy',
+      termsOfUseLabel: 'Terms of Use',
       footerCompanyDetails: 'DomiVise Ltd\nCompany No. 17415511\nRegistered in England and Wales\nSupporting landlords across the United Kingdom',
       footerCredentialOne: 'Built for landlords across the UK.\nGuidance tailored to England, Wales, Scotland and Northern Ireland.',
       footerCredentialTwo: '“Registered in England and Wales” refers to the company’s legal registration and does not limit DomiVise’s UK-wide service coverage.',
       footerCredentialThree: 'Product in active development — founding members get first access.',
       footerTagline: 'The calmer home for your rental portfolio',
-      footerCredit: 'Intelligent property management for landlords across the UK.'
+      footerCredit: 'Intelligent property management for landlords across the UK.',
+      copyright: '© {year} DomiVise Ltd. All rights reserved.',
+      logoAlt: 'DomiVise',
+      logoHomeLabel: 'DomiVise logo, click to go to the home page.'
     },
     hero: {
       eyebrow: 'Built for landlords across the UK',
@@ -139,8 +169,18 @@
       emailPlaceholder: 'you@example.co.uk',
       portfolioLabel: 'Properties / units *',
       portfolioPlaceholder: 'How many do you let?',
+      portfolioOptions: [
+        { value: '1', label: '1' },
+        { value: '2-4', label: '2–4' },
+        { value: '5-10', label: '5–10' },
+        { value: '11-25', label: '11–25' },
+        { value: '26-50', label: '26–50' },
+        { value: '50+', label: '50+' }
+      ],
       challengeLabel: 'Biggest property-management challenge',
       challengePlaceholder: 'e.g. keeping up with compliance deadlines across 6 flats…',
+      privacyNoticeVersion: '2026-08-30',
+      programmeCommunicationsNotice: 'Founding 100 and private-beta communications are necessary to process this application and administer early access.',
       consentNote: 'By applying, you understand we’ll email you about your Founding 100 application, private-beta access and essential product-administration updates.',
       marketingConsent: 'I’d also like to receive optional DomiVise marketing updates. I can unsubscribe at any time.',
       submit: 'Apply to join the Founding 100',
@@ -315,6 +355,38 @@
     if (alt !== undefined) node.setAttribute('alt', alt);
   }
 
+  function setLinkText(selector, value) {
+    document.querySelectorAll(selector).forEach(function (node) {
+      node.textContent = value;
+    });
+  }
+
+  function setInputValue(selector, value) {
+    var node = document.querySelector(selector);
+    if (node) node.value = value || '';
+  }
+
+  function setPortfolioOptions(content) {
+    var select = document.querySelector('#fld-size');
+    if (!select) return;
+    var selected = select.value;
+    var options = Array.isArray(content.join.portfolioOptions) ? content.join.portfolioOptions : [];
+    var html = '<option value="" disabled>' + escapeHtml(content.join.portfolioPlaceholder) + '</option>';
+    html += options.map(function (option) {
+      var value = option && option.value != null ? String(option.value) : '';
+      var label = option && option.label != null ? String(option.label) : value;
+      return '<option value="' + escapeHtml(value) + '">' + escapeHtml(label) + '</option>';
+    }).join('');
+    select.innerHTML = html;
+    if (selected && options.some(function (option) { return option && String(option.value) === selected; })) {
+      select.value = selected;
+    } else {
+      select.value = '';
+      var emptyOption = select.querySelector('option[value=""]');
+      if (emptyOption) emptyOption.selected = true;
+    }
+  }
+
   function apply(content) {
     content = merge(DEFAULT_CONTENT, content || {});
     window.domiviseContent = content;
@@ -329,11 +401,25 @@
     if (ogTitle) ogTitle.setAttribute('content', content.site.ogTitle);
     var ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) ogDescription.setAttribute('content', content.site.ogDescription);
-    document.querySelectorAll('meta[property="og:image"], meta[property="og:image:secure_url"], meta[name="twitter:image"]').forEach(function (node) { node.setAttribute('content', content.site.socialImage); });
-    document.querySelectorAll('meta[name="twitter:title"]').forEach(function (node) { node.setAttribute('content', content.site.ogTitle); });
-    document.querySelectorAll('meta[name="twitter:description"]').forEach(function (node) { node.setAttribute('content', content.site.ogDescription); });
-    document.querySelectorAll('meta[property="og:url"]').forEach(function (node) { node.setAttribute('content', content.site.canonicalUrl); });
+    document.querySelectorAll('meta[property="og:image"], meta[property="og:image:secure_url"]').forEach(function (node) { node.setAttribute('content', content.site.socialImage); });
+    document.querySelectorAll('meta[name="twitter:image"]').forEach(function (node) { node.setAttribute('content', content.site.twitterImage || content.site.socialImage); });
+    document.querySelectorAll('meta[name="twitter:title"]').forEach(function (node) { node.setAttribute('content', content.site.twitterTitle || content.site.ogTitle); });
+    document.querySelectorAll('meta[name="twitter:description"]').forEach(function (node) { node.setAttribute('content', content.site.twitterDescription || content.site.ogDescription); });
+    document.querySelectorAll('meta[property="og:url"]').forEach(function (node) { node.setAttribute('content', content.site.ogUrl || content.site.canonicalUrl); });
     document.querySelectorAll('meta[property="og:image:alt"]').forEach(function (node) { node.setAttribute('content', content.site.ogImageAlt); });
+    document.querySelectorAll('meta[name="twitter:image:alt"]').forEach(function (node) { node.setAttribute('content', content.site.twitterImageAlt || content.site.ogImageAlt); });
+
+    setLinkText('.nav_links a[href="#platform"], .nav_overlay a[href="#platform"]', content.site.navPlatformLabel);
+    setLinkText('.nav_links a[href="#features"], .nav_overlay a[href="#features"]', content.site.navFeaturesLabel);
+    setLinkText('.nav_links a[href="#founding"], .nav_overlay a[href="#founding"]', content.site.navFoundingLabel);
+    setLinkText('.nav_links a[href="#health-check"], .nav_overlay a[href="#health-check"]', content.site.navHealthLabel);
+    setLinkText('.nav_links a[href="#faq"], .nav_overlay a[href="#faq"]', content.site.navFaqLabel);
+    setButton('.nav .btn_nav-cta', content.site.navCtaLabel || content.hero.primaryCta);
+    setLinkText('.nav_overlay .is-secondary a[href="index.html"]', content.site.homeLabel);
+    setLinkText('[data-social-link="instagram"]', content.site.instagramLabel);
+    setLinkText('[data-social-link="linkedin"]', content.site.linkedinLabel);
+    setLinkText('.nav_overlay .is-secondary a[href="privacy.html"], .footer_nav-small a[href="privacy.html"]', content.site.privacyPolicyLabel);
+    setLinkText('.nav_overlay .is-secondary a[href="terms.html"], .footer_nav-small a[href="terms.html"]', content.site.termsOfUseLabel);
 
     setLabel('.hero_copy .category-label', content.hero.eyebrow);
     setText('.hero_copy h1', content.hero.title, true);
@@ -378,7 +464,8 @@
       if (detail) detail.textContent = item.detail;
       if (pill) pill.textContent = item.pill;
     });
-    setText('.dv-mock_tip p', 'Domi tip: ' + content.product.tip);
+    var domiTip = document.querySelector('.dv-mock_tip p');
+    if (domiTip) domiTip.innerHTML = '<strong>Domi tip:</strong> ' + escapeHtml(content.product.tip);
 
     setLabel('#features .how_header .category-label', content.features.eyebrow);
     setText('#features .how_header h2', content.features.heading, true);
@@ -434,12 +521,13 @@
       var label = document.querySelector('label[for="' + input.id + '"]');
       if (label) label.textContent = field[1];
       if (input.tagName === 'SELECT') {
-        var emptyOption = input.querySelector('option[value=""]');
-        if (emptyOption) emptyOption.textContent = field[2];
+        setPortfolioOptions(content);
       } else {
         input.setAttribute('placeholder', field[2]);
       }
     });
+    setInputValue('input[name="Privacy-Notice-Version"]', content.join.privacyNoticeVersion);
+    setInputValue('input[name="Programme-Communications-Notice"]', content.join.programmeCommunicationsNotice);
     setText('.dv-consent-note', content.join.consentNote);
     setText('.dv-consent span', content.join.marketingConsent);
     setButton('#submitBtn', content.join.submit);
@@ -447,7 +535,8 @@
     if (finePrint) finePrint.innerHTML = escapeHtml(content.join.finePrint).replace('{privacy}', '<a href="privacy.html">privacy policy</a>');
     setText('#joinSuccess h3', content.join.successHeading);
     setText('#joinSuccess > p:first-of-type', content.join.successBody);
-    setText('#joinSuccess > p:last-child', content.join.successContactLabel + ' ' + content.site.contactEmail);
+    var successContact = document.querySelector('#joinSuccess > p:last-child');
+    if (successContact) successContact.innerHTML = escapeHtml(content.join.successContactLabel) + ' <a href="mailto:' + escapeHtml(content.site.contactEmail) + '">' + escapeHtml(content.site.contactEmail) + '</a>';
 
     setLabel('.dv-status .category-label', content.trust.statusLabel);
     setText('.dv-status .subtitle-2', content.trust.statusBody);
@@ -479,16 +568,35 @@
     });
     var footerBrand = document.querySelector('.footer_brand .label');
     if (footerBrand && content.site.footerTagline) footerBrand.textContent = content.site.footerTagline;
-    var instagramLinks = document.querySelectorAll('a[href*="instagram.com"]');
+    var instagramLinks = document.querySelectorAll('[data-social-link="instagram"], a[href*="instagram.com"]');
     instagramLinks.forEach(function (link) { link.href = content.site.instagram; });
-    var linkedinLinks = document.querySelectorAll('a[href*="linkedin.com"]');
+    var linkedinLinks = document.querySelectorAll('[data-social-link="linkedin"], a[href*="linkedin.com"]');
     linkedinLinks.forEach(function (link) { link.href = content.site.linkedin; });
+    setLinkText('.footer_nav-main a[href="#platform"]', content.site.footerPlatformLabel);
+    setLinkText('.footer_nav-main a[href="#features"]', content.site.footerFeaturesLabel);
+    setLinkText('.footer_nav-main a[href="#founding"]', content.site.footerFoundingLabel);
+    setLinkText('.footer_nav-main a[href="#join"]', content.site.footerJoinLabel);
+    setLinkText('.footer_nav-small a[href="#health-check"]', content.site.footerHealthLabel);
+    setLinkText('.footer_nav-small a[href="#faq"]', content.site.footerFaqLabel);
+    setLinkText('.footer_nav-small a[href="admin.html"]', content.site.footerAdminLabel);
+    setText('.footer_contact > .label', content.site.footerContactLabel);
     setText('.footer_contact > p:nth-of-type(2)', content.site.footerCompanyDetails, true);
     setText('.footer_credentials p:nth-child(1)', content.site.footerCredentialOne, true);
     setText('.footer_credentials p:nth-child(2)', content.site.footerCredentialTwo);
     setText('.footer_credentials p:nth-child(3)', content.site.footerCredentialThree);
     setText('.footer_credits p:last-child', content.site.footerCredit);
     setText('.footer_brand .label', content.site.footerTagline);
+    var copyright = document.querySelector('.footer_credits p:first-child');
+    if (copyright) {
+      var year = String(new Date().getFullYear());
+      copyright.innerHTML = escapeHtml(content.site.copyright || '').replace('{year}', '<span data-current-year>' + year + '</span>');
+    }
+    document.querySelectorAll('.nav_logo, .footer_wordmark').forEach(function (logo) {
+      logo.setAttribute('alt', content.site.logoAlt);
+    });
+    document.querySelectorAll('.nav_brand, .footer_brand a').forEach(function (link) {
+      link.setAttribute('aria-label', content.site.logoHomeLabel);
+    });
 
     var structuredData = document.querySelector('script[type="application/ld+json"]');
     if (structuredData) {
@@ -497,9 +605,9 @@
         var graph = Array.isArray(data['@graph']) ? data['@graph'] : [];
         graph.forEach(function (entry) {
           if (entry['@type'] === 'Organization') {
-            entry.url = content.site.canonicalUrl;
-            entry.description = content.site.metaDescription;
-            entry.email = content.site.contactEmail;
+            entry.url = content.site.organizationUrl || content.site.canonicalUrl;
+            entry.description = content.site.organizationDescription || content.site.metaDescription;
+            entry.email = content.site.organizationEmail || content.site.contactEmail;
           }
           if (entry['@type'] === 'FAQPage' && Array.isArray(content.faq.items)) {
             entry.mainEntity = content.faq.items.map(function (item) {

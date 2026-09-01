@@ -81,14 +81,18 @@
         ['join.emailPlaceholder', 'Email placeholder', 'text'],
         ['join.portfolioLabel', 'Portfolio label', 'text'],
         ['join.portfolioPlaceholder', 'Portfolio placeholder', 'text'],
+        { path: 'join.portfolioOptions', label: 'Portfolio options', type: 'object-list', fields: [['value', 'Submitted value'], ['label', 'Visible label']] },
         ['join.challengeLabel', 'Challenge label', 'text'],
         ['join.challengePlaceholder', 'Challenge placeholder', 'text'],
+        ['join.privacyNoticeVersion', 'Privacy notice version', 'text'],
+        ['join.programmeCommunicationsNotice', 'Programme communications notice', 'textarea'],
         ['join.consentNote', 'Required email notice', 'textarea'],
         ['join.marketingConsent', 'Optional marketing consent', 'textarea'],
         ['join.submit', 'Submit button', 'text'],
         ['join.finePrint', 'Privacy line', 'textarea'],
         ['join.successHeading', 'Success heading', 'text'],
         ['join.successBody', 'Success message', 'textarea'],
+        ['join.successContactLabel', 'Success contact label', 'text'],
         ['site.contactEmail', 'Public contact email', 'email'],
         ['site.formEndpoint', 'Signup API endpoint', 'url'],
         { path: 'faq', label: 'FAQs', type: 'object', fields: [['eyebrow', 'Eyebrow'], ['heading', 'Heading'], ['note', 'Intro'], ['items', 'Questions and answers', 'object-list', [['question', 'Question'], ['answer', 'Answer']]]] }
@@ -114,16 +118,46 @@
         ['site.canonicalUrl', 'Canonical URL', 'url'],
         ['site.ogTitle', 'Social title', 'text'],
         ['site.ogDescription', 'Social description', 'textarea'],
+        ['site.ogUrl', 'OpenGraph URL', 'url'],
         ['site.socialImage', 'Social preview image', 'image'],
         ['site.ogImageAlt', 'Social preview alt text', 'text'],
+        ['site.twitterTitle', 'Twitter title', 'text'],
+        ['site.twitterDescription', 'Twitter description', 'textarea'],
+        ['site.twitterImage', 'Twitter image', 'image'],
+        ['site.twitterImageAlt', 'Twitter image alt text', 'text'],
+        ['site.organizationUrl', 'JSON-LD organization URL', 'url'],
+        ['site.organizationDescription', 'JSON-LD organization description', 'textarea'],
+        ['site.organizationEmail', 'JSON-LD organization email', 'email'],
         ['site.instagram', 'Instagram URL', 'url'],
         ['site.linkedin', 'LinkedIn URL', 'url'],
+        ['site.navPlatformLabel', 'Nav platform label', 'text'],
+        ['site.navFeaturesLabel', 'Nav features label', 'text'],
+        ['site.navFoundingLabel', 'Nav Founding 100 label', 'text'],
+        ['site.navHealthLabel', 'Nav health check label', 'text'],
+        ['site.navFaqLabel', 'Nav FAQ label', 'text'],
+        ['site.navCtaLabel', 'Nav CTA label', 'text'],
+        ['site.footerPlatformLabel', 'Footer platform label', 'text'],
+        ['site.footerFeaturesLabel', 'Footer features label', 'text'],
+        ['site.footerFoundingLabel', 'Footer Founding 100 label', 'text'],
+        ['site.footerJoinLabel', 'Footer join label', 'text'],
+        ['site.footerHealthLabel', 'Footer health check label', 'text'],
+        ['site.footerFaqLabel', 'Footer FAQ label', 'text'],
+        ['site.footerAdminLabel', 'Footer admin label', 'text'],
+        ['site.footerContactLabel', 'Footer contact heading', 'text'],
+        ['site.homeLabel', 'Home link label', 'text'],
+        ['site.instagramLabel', 'Instagram link label', 'text'],
+        ['site.linkedinLabel', 'LinkedIn link label', 'text'],
+        ['site.privacyPolicyLabel', 'Privacy link label', 'text'],
+        ['site.termsOfUseLabel', 'Terms link label', 'text'],
         ['site.footerCompanyDetails', 'Footer company details', 'textarea'],
         ['site.footerCredentialOne', 'Footer credential one', 'textarea'],
         ['site.footerCredentialTwo', 'Footer credential two', 'textarea'],
         ['site.footerCredentialThree', 'Footer credential three', 'textarea'],
         ['site.footerCredit', 'Footer credit line', 'text'],
-        ['site.footerTagline', 'Footer brand tagline', 'text']
+        ['site.footerTagline', 'Footer brand tagline', 'text'],
+        ['site.copyright', 'Copyright line', 'text'],
+        ['site.logoAlt', 'Logo alt text', 'text'],
+        ['site.logoHomeLabel', 'Logo home aria label', 'text']
       ]
     }
   ];
@@ -456,37 +490,40 @@
   }
 
   function saveCurrentContent() {
-    if (model.isSupabaseConfigured() && !remoteUnavailable) {
+    if (model.isSupabaseConfigured()) {
       return ensureSession().then(function (activeSession) {
         if (!activeSession) {
           renderAuthPanel();
           setStatus('Sign in to publish', false);
           return null;
         }
-        if (currentUser && !isAdminUser(currentUser)) {
-          setStatus('Admin role required', false);
-          return null;
-        }
-        setStatus('Publishing to Supabase...', false);
-        return model.saveRemote(content, activeSession.access_token)
-          .then(function (saved) {
-            content = saved;
-            render();
-            postPreview();
-            setStatus('Published to Supabase', true);
-            remoteUnavailable = false;
-            updateConnectionText('Supabase connected');
-          })
-          .catch(function (error) {
-            if (error.status === 401 || error.status === 403) {
-              setStatus('Supabase rejected the publish', false);
-              return;
-            }
-            remoteUnavailable = true;
-            model.saveLocal(content);
-            setStatus('Supabase unavailable. Saved locally.', true);
-            updateConnectionText('Local fallback');
-          });
+        return (currentUser ? Promise.resolve(currentUser) : fetchUser()).then(function (user) {
+          renderAuthPanel();
+          if (!isAdminUser(user)) {
+            setStatus('Admin role required', false);
+            return null;
+          }
+          setStatus('Publishing to Supabase...', false);
+          return model.saveRemote(content, activeSession.access_token)
+            .then(function (saved) {
+              content = saved;
+              render();
+              postPreview();
+              setStatus('Published to Supabase', true);
+              remoteUnavailable = false;
+              updateConnectionText('Supabase connected');
+            })
+            .catch(function (error) {
+              if (error.status === 401 || error.status === 403) {
+                setStatus('Supabase rejected the publish', false);
+                return;
+              }
+              remoteUnavailable = true;
+              model.saveLocal(content);
+              setStatus('Supabase unavailable. Saved locally.', true);
+              updateConnectionText('Local fallback');
+            });
+        });
       });
     }
 

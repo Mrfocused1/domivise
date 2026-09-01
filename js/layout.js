@@ -83,7 +83,8 @@
         '</ul>' +
         '<ul class="nav_overlay-ul is-secondary">' +
           SECONDARY_LINKS.map(function (l) {
-            return '<li><a data-overlay-link href="' + (l[0].indexOf('http') === 0 || l[0].charAt(0) === '#' ? l[0] : href(l[0])) + '"' + (l[2] ? ' target="_blank" rel="noopener"' : '') + '>' + l[1] + '</a></li>';
+            var socialAttr = l[1] === 'Instagram' ? ' data-social-link="instagram"' : l[1] === 'LinkedIn' ? ' data-social-link="linkedin"' : '';
+            return '<li><a data-overlay-link' + socialAttr + ' href="' + (l[0].indexOf('http') === 0 || l[0].charAt(0) === '#' ? l[0] : href(l[0])) + '"' + (l[2] ? ' target="_blank" rel="noopener"' : '') + '>' + l[1] + '</a></li>';
           }).join('') +
         '</ul>' +
       '</div>' +
@@ -103,8 +104,8 @@
             '<li><a data-underline href="#health-check">Five-Minute Health Check</a></li>' +
             '<li><a data-underline href="#faq">FAQ</a></li>' +
             '<li><a data-underline href="mailto:hello@domivise.co.uk?subject=Hello%20DomiVise!">hello@domivise.co.uk</a></li>' +
-            '<li><a data-underline href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
-            '<li><a data-underline href="https://www.linkedin.com/company/domivise-ltd/" target="_blank" rel="noopener">LinkedIn</a></li>' +
+            '<li><a data-underline data-social-link="instagram" href="https://instagram.com/domivise" target="_blank" rel="noopener">Instagram</a></li>' +
+            '<li><a data-underline data-social-link="linkedin" href="https://www.linkedin.com/company/domivise-ltd/" target="_blank" rel="noopener">LinkedIn</a></li>' +
             '<li><a data-underline href="admin.html">Admin</a></li>' +
             '<li><a data-underline href="' + href('/privacy') + '">Privacy Policy</a></li>' +
             '<li><a data-underline href="' + href('/terms') + '">Terms of Use</a></li>' +
