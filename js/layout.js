@@ -153,6 +153,8 @@
   tmp.innerHTML = footerHTML;
   document.body.appendChild(tmp.querySelector('[data-footer]'));
 
+  if (window.applyDomiViseContent) window.applyDomiViseContent();
+
   var year = document.querySelector('[data-current-year]');
   if (year) year.textContent = new Date().getFullYear();
 

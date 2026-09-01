@@ -2,10 +2,17 @@
   'use strict';
 
   var CONFIG = {
-    formEndpoint: '/api/founding-100',
+    formEndpoint: (window.domiviseContent && window.domiviseContent.site && window.domiviseContent.site.formEndpoint) || '/api/founding-100',
     foundingTaken: null,
     foundingTotal: 100
   };
+
+  function syncContentConfig() {
+    if (!window.domiviseContent || !window.domiviseContent.site) return;
+    CONFIG.formEndpoint = window.domiviseContent.site.formEndpoint || '/api/founding-100';
+  }
+
+  window.addEventListener('domivise-content:updated', syncContentConfig);
 
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
     link.addEventListener('click', function (e) {
@@ -143,6 +150,7 @@
         setSubmitLabel('Sending...');
       }
       setFormStatus('Sending your application...');
+      syncContentConfig();
 
       if (CONFIG.formEndpoint) {
         fetch(CONFIG.formEndpoint, {
@@ -165,7 +173,8 @@
               setSubmitLabel(submitDefaultLabel || submitDefaultDuplicateLabel || 'Apply to join the Founding 100');
             }
             setFormStatus('');
-            alert("Something went wrong. Please try again, or email hello@domivise.co.uk directly.");
+            var contactEmail = (window.domiviseContent && window.domiviseContent.site && window.domiviseContent.site.contactEmail) || 'hello@domivise.co.uk';
+            alert("Something went wrong. Please try again, or email " + contactEmail + " directly.");
           });
       } else {
         setTimeout(showSuccess, 400);
