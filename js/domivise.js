@@ -289,6 +289,7 @@
       if (hp && hp.value) {
         form.hidden = true;
         success.hidden = false;
+        success.classList.add('is-visible');
         return;
       }
 
@@ -357,6 +358,7 @@
     setFormStatus('Application received. Confirmation email sent.');
     form.hidden = true;
     success.hidden = false;
+    success.classList.add('is-visible');
     success.focus({ preventScroll: true });
     if (window.lenis) window.lenis.scrollTo(success, { offset: -120 });
     else success.scrollIntoView({ behavior: 'smooth', block: 'center' });
