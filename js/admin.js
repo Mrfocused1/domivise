@@ -95,24 +95,27 @@
         ['join.successContactLabel', 'Success contact label', 'text'],
         ['site.contactEmail', 'Public contact email', 'email'],
         ['site.formEndpoint', 'Signup API endpoint', 'url'],
+        ['email.applicantSubject', 'Confirmation email subject', 'text'],
+        ['email.applicantHeading', 'Confirmation email heading', 'text'],
+        ['email.applicantGreeting', 'Confirmation email greeting', 'text'],
+        ['email.applicantBody', 'Confirmation email body', 'textarea'],
+        ['email.applicantSignature', 'Confirmation email signature', 'textarea'],
+        ['email.notificationSubject', 'Internal notification subject', 'text'],
+        ['email.notificationHeading', 'Internal notification heading', 'text'],
+        ['email.notificationIntro', 'Internal notification intro', 'textarea'],
         { path: 'faq', label: 'FAQs', type: 'object', fields: [['eyebrow', 'Eyebrow'], ['heading', 'Heading'], ['note', 'Intro'], ['items', 'Questions and answers', 'object-list', [['question', 'Question'], ['answer', 'Answer']]]] }
       ]
     },
     {
-      id: 'media', number: '05', title: 'Images, SEO & footer', description: 'Hosted media URLs, alternative text, search/social metadata and footer copy.',
+      id: 'media', number: '05', title: 'Images, metadata & footer', description: 'Upload imagery and edit search/social metadata, links and footer copy.',
       fields: [
         ['hero.backgroundImage', 'Hero background image', 'image'],
-        ['hero.backgroundAlt', 'Hero background alt text', 'text'],
         ['hero.video', 'Hero video URL', 'url'],
         ['hero.videoPoster', 'Hero video poster', 'image'],
         ['hero.cardImage', 'Hero card image', 'image'],
-        ['hero.cardAlt', 'Hero card alt text', 'text'],
         ['testimonial.image', 'Testimonial image', 'image'],
-        ['testimonial.imageAlt', 'Testimonial image alt text', 'text'],
         ['faq.imageOne', 'FAQ image one', 'image'],
-        ['faq.imageOneAlt', 'FAQ image one alt text', 'text'],
         ['faq.imageTwo', 'FAQ image two', 'image'],
-        ['faq.imageTwoAlt', 'FAQ image two alt text', 'text'],
         ['site.pageTitle', 'Browser/page title', 'text'],
         ['site.metaDescription', 'Meta description', 'textarea'],
         ['site.canonicalUrl', 'Canonical URL', 'url'],
@@ -120,11 +123,9 @@
         ['site.ogDescription', 'Social description', 'textarea'],
         ['site.ogUrl', 'OpenGraph URL', 'url'],
         ['site.socialImage', 'Social preview image', 'image'],
-        ['site.ogImageAlt', 'Social preview alt text', 'text'],
         ['site.twitterTitle', 'Twitter title', 'text'],
         ['site.twitterDescription', 'Twitter description', 'textarea'],
         ['site.twitterImage', 'Twitter image', 'image'],
-        ['site.twitterImageAlt', 'Twitter image alt text', 'text'],
         ['site.organizationUrl', 'JSON-LD organization URL', 'url'],
         ['site.organizationDescription', 'JSON-LD organization description', 'textarea'],
         ['site.organizationEmail', 'JSON-LD organization email', 'email'],
@@ -156,7 +157,6 @@
         ['site.footerCredit', 'Footer credit line', 'text'],
         ['site.footerTagline', 'Footer brand tagline', 'text'],
         ['site.copyright', 'Copyright line', 'text'],
-        ['site.logoAlt', 'Logo alt text', 'text'],
         ['site.logoHomeLabel', 'Logo home aria label', 'text']
       ]
     }
@@ -183,16 +183,18 @@
   function inputMarkup(path, label, type, value, upload) {
     var id = 'field-' + path.replace(/[^a-z0-9]/gi, '-');
     var control;
-    if (type === 'textarea' || type === 'textarea-short') {
+    if (type === 'image') {
+      control = '<label class="admin-upload admin-upload-only" for="' + id + '">Upload<input id="' + id + '" type="file" accept="image/*" data-upload-path="' + path + '" /></label>';
+    } else if (type === 'textarea' || type === 'textarea-short') {
       control = '<textarea class="admin-control ' + (type === 'textarea-short' ? 'admin-short' : '') + '" id="' + id + '" data-path="' + path + '" rows="' + (type === 'textarea-short' ? '2' : '4') + '">' + escapeHtml(value) + '</textarea>';
     } else {
-      var inputType = type === 'email' ? 'email' : type === 'url' || type === 'image' ? 'url' : 'text';
+      var inputType = type === 'email' ? 'email' : type === 'url' ? 'url' : 'text';
       control = '<input class="admin-control" id="' + id + '" data-path="' + path + '" type="' + inputType + '" value="' + escapeAttr(value) + '" />';
     }
-    if (upload) {
+    if (upload && type !== 'image') {
       control = '<div class="admin-image-row">' + control + '<label class="admin-upload">Upload<input type="file" accept="image/*" data-upload-path="' + path + '" /></label></div>';
     }
-    return '<div class="admin-field"><label for="' + id + '">' + escapeHtml(labelFor(path, label)) + '</label>' + control + (type === 'image' ? '<small>Use a hosted URL for shared content, or upload a local image for this browser.</small>' : '') + '</div>';
+    return '<div class="admin-field"><label for="' + id + '">' + escapeHtml(labelFor(path, label)) + '</label>' + control + (type === 'image' ? '<small>Choose an image file to update the live preview.</small>' : '') + '</div>';
   }
 
   function renderList(path, label, values) {

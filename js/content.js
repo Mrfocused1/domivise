@@ -189,6 +189,16 @@
       successBody: 'Welcome to the Founding 100. We’ve sent a confirmation email and will be in touch with next steps as the beta comes together.',
       successContactLabel: 'Any questions?'
     },
+    email: {
+      applicantSubject: 'Welcome to the DomiVise Founding 100',
+      applicantHeading: 'Welcome to the DomiVise Founding 100',
+      applicantGreeting: 'Hi {name},',
+      applicantBody: 'Thanks for applying to join the DomiVise Founding 100.\n\nWe have received your details and will contact you about private-beta access and next steps as the product comes together.\n\nDomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.',
+      applicantSignature: 'Derryal Swaby\nFounder, DomiVise',
+      notificationSubject: 'New Founding 100 application from {name}',
+      notificationHeading: 'New Founding 100 application',
+      notificationIntro: 'A new Founding 100 application was submitted from the landing page.'
+    },
     trust: {
       statusLabel: 'Status: in active development',
       statusBody: 'DomiVise is not launched yet — everything you’ve read describes what we are building, not what is live today. Joining the Founding 100 reserves your place and adds you to the build journey.',

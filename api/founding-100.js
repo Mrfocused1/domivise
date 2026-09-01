@@ -2,6 +2,17 @@ const RESEND_BATCH_URL = 'https://api.resend.com/emails/batch';
 const RESEND_CONTACTS_URL = 'https://api.resend.com/contacts';
 const DEFAULT_FROM = 'DomiVise <hello@domivise.co.uk>';
 const DEFAULT_TO = 'hello@domivise.co.uk';
+const HOMEPAGE_ID = 'homepage';
+const DEFAULT_EMAIL_CONTENT = {
+  applicantSubject: 'Welcome to the DomiVise Founding 100',
+  applicantHeading: 'Welcome to the DomiVise Founding 100',
+  applicantGreeting: 'Hi {name},',
+  applicantBody: 'Thanks for applying to join the DomiVise Founding 100.\n\nWe have received your details and will contact you about private-beta access and next steps as the product comes together.\n\nDomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.',
+  applicantSignature: 'Derryal Swaby\nFounder, DomiVise',
+  notificationSubject: 'New Founding 100 application from {name}',
+  notificationHeading: 'New Founding 100 application',
+  notificationIntro: 'A new Founding 100 application was submitted from the landing page.'
+};
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -20,6 +31,24 @@ function escapeHtml(value) {
 
 function clean(value, maxLength) {
   return String(value || '').trim().slice(0, maxLength);
+}
+
+function cleanTemplate(value, fallback, maxLength) {
+  const cleaned = clean(value, maxLength);
+  return cleaned || fallback;
+}
+
+function interpolate(value, variables) {
+  return String(value || '').replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => (
+    variables[key] == null ? '' : String(variables[key])
+  ));
+}
+
+function paragraphs(value) {
+  return String(value || '')
+    .split(/\n{2,}/)
+    .map(part => clean(part, 4000))
+    .filter(Boolean);
 }
 
 function isEmail(value) {
@@ -70,7 +99,50 @@ function readRequestBody(req) {
   });
 }
 
-function buildEmail(payload) {
+function resolveSupabaseConfig() {
+  return {
+    url: process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.DOMIVISE_SUPABASE_URL,
+    key: process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.DOMIVISE_SUPABASE_PUBLISHABLE_KEY
+  };
+}
+
+async function loadPublishedContent() {
+  const config = resolveSupabaseConfig();
+  if (!config.url || !config.key) return {};
+
+  try {
+    const baseUrl = config.url.replace(/\/$/, '');
+    const query = `/rest/v1/site_content?id=eq.${encodeURIComponent(HOMEPAGE_ID)}&is_published=eq.true&select=content&limit=1`;
+    const response = await fetch(`${baseUrl}${query}`, {
+      headers: {
+        apikey: config.key,
+        Authorization: `Bearer ${config.key}`,
+        Accept: 'application/json'
+      }
+    });
+    if (!response.ok) return {};
+    const rows = await response.json();
+    return rows && rows[0] && rows[0].content ? rows[0].content : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function resolveEmailContent(siteContent) {
+  const email = siteContent && siteContent.email && typeof siteContent.email === 'object' ? siteContent.email : {};
+  return {
+    applicantSubject: cleanTemplate(email.applicantSubject, DEFAULT_EMAIL_CONTENT.applicantSubject, 180),
+    applicantHeading: cleanTemplate(email.applicantHeading, DEFAULT_EMAIL_CONTENT.applicantHeading, 180),
+    applicantGreeting: cleanTemplate(email.applicantGreeting, DEFAULT_EMAIL_CONTENT.applicantGreeting, 180),
+    applicantBody: cleanTemplate(email.applicantBody, DEFAULT_EMAIL_CONTENT.applicantBody, 4000),
+    applicantSignature: cleanTemplate(email.applicantSignature, DEFAULT_EMAIL_CONTENT.applicantSignature, 1000),
+    notificationSubject: cleanTemplate(email.notificationSubject, DEFAULT_EMAIL_CONTENT.notificationSubject, 180),
+    notificationHeading: cleanTemplate(email.notificationHeading, DEFAULT_EMAIL_CONTENT.notificationHeading, 180),
+    notificationIntro: cleanTemplate(email.notificationIntro, DEFAULT_EMAIL_CONTENT.notificationIntro, 1000)
+  };
+}
+
+function buildEmail(payload, siteContent) {
   const name = clean(payload.Name, 256);
   const email = clean(payload.Email, 256).toLowerCase();
   const portfolioSize = clean(payload['Portfolio-Size'], 64);
@@ -80,6 +152,30 @@ function buildEmail(payload) {
   const privacyVersion = clean(payload['Privacy-Notice-Version'], 32);
   const programmeNotice = clean(payload['Programme-Communications-Notice'], 500);
   const submittedAt = new Date().toISOString();
+  const template = resolveEmailContent(siteContent);
+  const variables = {
+    name,
+    email,
+    portfolioSize,
+    challenge,
+    source,
+    marketingConsent,
+    privacyVersion,
+    submittedAt
+  };
+  const applicantBody = paragraphs(interpolate(template.applicantBody, variables));
+  const applicantSignature = paragraphs(interpolate(template.applicantSignature, variables));
+  const applicantText = [
+    interpolate(template.applicantGreeting, variables),
+    '',
+    applicantBody.join('\n\n'),
+    '',
+    applicantSignature.join('\n')
+  ].filter(Boolean).join('\n');
+  const applicantHtmlBody = applicantBody.map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join('');
+  const applicantHtmlSignature = applicantSignature.length
+    ? `<p style="margin-top:24px;">${escapeHtml(applicantSignature.join('\n')).replace(/\n/g, '<br>')}</p>`
+    : '';
 
   const rows = [
     ['Name', name],
@@ -106,27 +202,14 @@ function buildEmail(payload) {
       {
         from: process.env.RESEND_FROM || DEFAULT_FROM,
         to: [email],
-        subject: 'Welcome to the DomiVise Founding 100',
-        text: [
-          `Hi ${name},`,
-          '',
-          'Thanks for applying to join the DomiVise Founding 100.',
-          '',
-          'We have received your details and will contact you about private-beta access and next steps as the product comes together.',
-          '',
-          'DomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.',
-          '',
-          'Derryal Swaby',
-          'Founder, DomiVise'
-        ].join('\n'),
+        subject: interpolate(template.applicantSubject, variables),
+        text: applicantText,
         html: `
           <div style="font-family:Arial,sans-serif;color:#252324;line-height:1.6;">
-            <h1 style="font-size:22px;margin:0 0 16px;">Welcome to the DomiVise Founding 100</h1>
-            <p>Hi ${escapeHtml(name)},</p>
-            <p>Thanks for applying to join the DomiVise Founding 100.</p>
-            <p>We have received your details and will contact you about private-beta access and next steps as the product comes together.</p>
-            <p>DomiVise will support landlords across England, Wales, Scotland and Northern Ireland, with guidance tailored to the relevant jurisdiction.</p>
-            <p style="margin-top:24px;">Derryal Swaby<br>Founder, DomiVise</p>
+            <h1 style="font-size:22px;margin:0 0 16px;">${escapeHtml(interpolate(template.applicantHeading, variables))}</h1>
+            <p>${escapeHtml(interpolate(template.applicantGreeting, variables))}</p>
+            ${applicantHtmlBody}
+            ${applicantHtmlSignature}
           </div>
         `
       },
@@ -134,11 +217,12 @@ function buildEmail(payload) {
         from: process.env.RESEND_FROM || DEFAULT_FROM,
         to: [process.env.FOUNDING_NOTIFY_TO || DEFAULT_TO],
         reply_to: email,
-        subject: `New Founding 100 application from ${name}`,
-        text: `New Founding 100 application\n\n${text}`,
+        subject: interpolate(template.notificationSubject, variables),
+        text: `${interpolate(template.notificationHeading, variables)}\n\n${interpolate(template.notificationIntro, variables)}\n\n${text}`,
         html: `
           <div style="font-family:Arial,sans-serif;color:#252324;line-height:1.5;">
-            <h1 style="font-size:22px;margin:0 0 16px;">New Founding 100 application</h1>
+            <h1 style="font-size:22px;margin:0 0 16px;">${escapeHtml(interpolate(template.notificationHeading, variables))}</h1>
+            <p>${escapeHtml(interpolate(template.notificationIntro, variables))}</p>
             <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:720px;">${htmlRows}</table>
           </div>
         `
@@ -243,12 +327,14 @@ module.exports = async function founding100(req, res) {
     }
 
     const email = clean(payload.Email, 256).toLowerCase();
-    const application = buildEmail(payload);
-    const contact = buildContact(payload);
 
-    if (!application.name || !isEmail(email) || !application.portfolioSize) {
+    if (!clean(payload.Name, 256) || !isEmail(email) || !clean(payload['Portfolio-Size'], 64)) {
       return sendJson(res, 400, { error: 'invalid_submission' });
     }
+
+    const contact = buildContact(payload);
+    const siteContent = await loadPublishedContent();
+    const application = buildEmail(payload, siteContent);
 
     await syncContact(contact);
 
