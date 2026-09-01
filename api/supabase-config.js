@@ -1,7 +1,15 @@
 const SUPABASE_URL = 'https://eocipinztulbhkjufrkn.supabase.co';
 
 function clean(value) {
-  return typeof value === 'string' ? value.trim() : '';
+  if (typeof value !== 'string') return '';
+  var cleaned = value.trim().replace(/\\n/g, '').replace(/\\r/g, '').trim();
+  if (
+    (cleaned.charAt(0) === '"' && cleaned.charAt(cleaned.length - 1) === '"') ||
+    (cleaned.charAt(0) === "'" && cleaned.charAt(cleaned.length - 1) === "'")
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  return cleaned;
 }
 
 function getPublishableKey() {

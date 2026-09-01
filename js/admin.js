@@ -11,6 +11,7 @@
   var saveState = document.getElementById('saveState');
   var notifications = document.getElementById('adminNotifications');
   var connectionState = document.getElementById('adminConnectionState');
+  var analyticsMount = document.getElementById('analyticsMount');
   var overview = document.getElementById('overview');
   var authPanel = document.createElement('section');
   var saveTimer;
@@ -246,6 +247,62 @@
     if (editor) editor.innerHTML = '';
   }
 
+  function showPasswordResetView(message) {
+    setLocked(true);
+    setHeader('Set a new password', '');
+    if (!authPanel.isConnected) {
+      var topbar = document.querySelector('.admin-topbar');
+      if (overview) overview.insertAdjacentElement('afterend', authPanel);
+      else if (topbar) topbar.insertAdjacentElement('afterend', authPanel);
+    }
+    if (editor) editor.innerHTML = '';
+    authPanel.innerHTML = [
+      '<form class="admin-login admin-password-reset" id="passwordResetForm">',
+      '<div><strong>Choose a new password</strong><p>' + escapeHtml(message || 'Enter a new password for your DomiVise admin account.') + '</p></div>',
+      '<label><span class="admin-sr-only">New password</span><input class="admin-control" name="password" type="password" required minlength="8" autocomplete="new-password" aria-label="New password" placeholder="New password" /></label>',
+      '<label><span class="admin-sr-only">Confirm password</span><input class="admin-control" name="confirm" type="password" required minlength="8" autocomplete="new-password" aria-label="Confirm password" placeholder="Confirm password" /></label>',
+      '<button class="admin-button admin-button-primary" type="submit">Update password</button>',
+      '</form>'
+    ].join('');
+
+    document.getElementById('passwordResetForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      var form = event.currentTarget;
+      var password = form.password.value;
+      var confirm = form.confirm.value;
+      if (password.length < 8) {
+        setStatus('Use at least 8 characters', false);
+        return;
+      }
+      if (password !== confirm) {
+        setStatus('Passwords do not match', false);
+        return;
+      }
+
+      setStatus('Updating password...', false);
+      updatePassword(password)
+        .then(fetchUser)
+        .then(function (user) {
+          if (!isAdminUser(user)) {
+            storeSession(null);
+            currentUser = null;
+            renderAuthPanel();
+            setStatus('Password updated, but this account cannot publish.', false);
+            notify('Password updated', 'Sign in with an admin account to publish homepage changes.', 'warning');
+            return null;
+          }
+          setStatus('Password updated', true);
+          notify('Password updated', 'You are signed in with your new password.', 'success');
+          renderAuthPanel();
+          return loadInitialContent();
+        })
+        .catch(function () {
+          setStatus('Could not update password', false);
+          notify('Password reset failed', 'The reset link may have expired. Request a new reset link and try again.', 'error');
+        });
+    });
+  }
+
   function showEditorView() {
     setLocked(false);
     setHeader('Edit your homepage.', 'DomiVise editor');
@@ -281,6 +338,180 @@
     set(content, path, value);
     setDirty();
     postPreview();
+  }
+
+  function analyticsQueryUrl(days) {
+    var since = new Date(Date.now() - (days * 24 * 60 * 60 * 1000)).toISOString();
+    return authUrl('/rest/v1/site_analytics_events?select=created_at,event_name,page_path,source,referrer_host,visitor_id,session_id,metadata&created_at=gte.' + encodeURIComponent(since) + '&order=created_at.desc&limit=1000');
+  }
+
+  function loadAnalytics() {
+    if (!analyticsMount || !model.isSupabaseConfigured() || !isAdminUser(currentUser)) return Promise.resolve();
+    analyticsMount.innerHTML = '<div class="admin-analytics-loading">Loading analytics...</div>';
+    return ensureSession().then(function (activeSession) {
+      if (!activeSession) throw new Error('session_required');
+      return fetch(analyticsQueryUrl(30), {
+        headers: authHeaders(activeSession.access_token)
+      });
+    }).then(function (response) {
+      if (!response.ok) {
+        var error = new Error('analytics_unavailable');
+        error.status = response.status;
+        throw error;
+      }
+      return response.json();
+    }).then(function (events) {
+      renderAnalytics(Array.isArray(events) ? events : []);
+    }).catch(function (error) {
+      renderAnalyticsError(error);
+    });
+  }
+
+  function renderAnalytics(events) {
+    if (!analyticsMount) return;
+    var summary = summarizeAnalytics(events);
+    analyticsMount.innerHTML = [
+      '<div class="admin-analytics-head">',
+      '<div><p class="admin-overline">Analytics</p><h2>What is happening</h2><p>Last 30 days from the latest ' + events.length + ' tracked events.</p></div>',
+      '<button class="admin-button admin-button-quiet" id="refreshAnalyticsBtn" type="button">Refresh</button>',
+      '</div>',
+      '<div class="admin-metrics">',
+      metricMarkup('Visitors', summary.visitors),
+      metricMarkup('Sessions', summary.sessions),
+      metricMarkup('Page views', summary.pageViews),
+      metricMarkup('CTA clicks', summary.ctaClicks),
+      metricMarkup('Applications', summary.applications),
+      metricMarkup('Conversion', summary.conversion),
+      '</div>',
+      '<div class="admin-analytics-layout">',
+      analyticsBlock('Top sources', barListMarkup(summary.sources, 'No traffic sources yet.')),
+      analyticsBlock('CTA clicks', barListMarkup(summary.ctas, 'No CTA clicks yet.')),
+      analyticsBlock('Section views', barListMarkup(summary.sections, 'No section views yet.')),
+      analyticsBlock('Recent activity', activityMarkup(summary.recent)),
+      '</div>'
+    ].join('');
+    bindAnalyticsRefresh();
+  }
+
+  function renderAnalyticsError(error) {
+    if (!analyticsMount) return;
+    var message = error && (error.status === 404 || error.status === 401 || error.status === 403)
+      ? 'Analytics is not ready yet. Apply the Supabase schema update so the admin account can read site_analytics_events.'
+      : 'Analytics could not be loaded. Check the Supabase connection and try again.';
+    analyticsMount.innerHTML = [
+      '<div class="admin-analytics-head">',
+      '<div><p class="admin-overline">Analytics</p><h2>What is happening</h2><p>' + escapeHtml(message) + '</p></div>',
+      '<button class="admin-button admin-button-quiet" id="refreshAnalyticsBtn" type="button">Retry</button>',
+      '</div>'
+    ].join('');
+    bindAnalyticsRefresh();
+  }
+
+  function bindAnalyticsRefresh() {
+    var refresh = document.getElementById('refreshAnalyticsBtn');
+    if (refresh) refresh.addEventListener('click', loadAnalytics);
+  }
+
+  function metricMarkup(label, value) {
+    return '<div class="admin-metric"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(value) + '</strong></div>';
+  }
+
+  function analyticsBlock(title, body) {
+    return '<section class="admin-analytics-block"><h3>' + escapeHtml(title) + '</h3>' + body + '</section>';
+  }
+
+  function summarizeAnalytics(events) {
+    var visitors = {};
+    var sessions = {};
+    var counts = {};
+    var sources = {};
+    var ctas = {};
+    var sections = {};
+    var recent = events.slice(0, 12);
+
+    events.forEach(function (event) {
+      if (event.visitor_id) visitors[event.visitor_id] = true;
+      if (event.session_id) sessions[event.session_id] = true;
+      counts[event.event_name] = (counts[event.event_name] || 0) + 1;
+      addCount(sources, event.source || event.referrer_host || 'direct');
+      if (event.event_name === 'cta_click') {
+        addCount(ctas, cleanLabel((event.metadata && event.metadata.label) || event.source || 'CTA'));
+      }
+      if (event.event_name === 'section_view') {
+        addCount(sections, cleanLabel((event.metadata && event.metadata.section) || 'section'));
+      }
+    });
+
+    var pageViews = counts.page_view || 0;
+    var applications = counts.form_submit_success || 0;
+    return {
+      visitors: Object.keys(visitors).length,
+      sessions: Object.keys(sessions).length,
+      pageViews: pageViews,
+      ctaClicks: counts.cta_click || 0,
+      applications: applications,
+      conversion: pageViews ? Math.round((applications / pageViews) * 1000) / 10 + '%' : '0%',
+      sources: rankedCounts(sources),
+      ctas: rankedCounts(ctas),
+      sections: rankedCounts(sections),
+      recent: recent
+    };
+  }
+
+  function addCount(target, key) {
+    key = cleanLabel(key || 'unknown');
+    target[key] = (target[key] || 0) + 1;
+  }
+
+  function cleanLabel(value) {
+    return String(value || 'unknown').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'unknown';
+  }
+
+  function rankedCounts(counts) {
+    return Object.keys(counts).map(function (key) {
+      return { label: key, value: counts[key] };
+    }).sort(function (a, b) {
+      return b.value - a.value || a.label.localeCompare(b.label);
+    }).slice(0, 8);
+  }
+
+  function barListMarkup(items, emptyText) {
+    if (!items.length) return '<p class="admin-analytics-empty">' + escapeHtml(emptyText) + '</p>';
+    var max = items[0].value || 1;
+    return '<div class="admin-bars">' + items.map(function (item) {
+      var width = Math.max(8, Math.round((item.value / max) * 100));
+      return '<div class="admin-bar-row"><div><span>' + escapeHtml(item.label) + '</span><strong>' + escapeHtml(item.value) + '</strong></div><i style="width:' + width + '%"></i></div>';
+    }).join('') + '</div>';
+  }
+
+  function activityMarkup(events) {
+    if (!events.length) return '<p class="admin-analytics-empty">No events have been tracked yet.</p>';
+    return '<div class="admin-activity">' + events.map(function (event) {
+      return '<div class="admin-activity-row"><time>' + escapeHtml(formatDate(event.created_at)) + '</time><span>' + escapeHtml(activityText(event)) + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function activityText(event) {
+    var metadata = event.metadata || {};
+    if (event.event_name === 'page_view') return 'Page view from ' + cleanLabel(event.source || event.referrer_host || 'direct');
+    if (event.event_name === 'cta_click') return 'CTA click: ' + cleanLabel(metadata.label || event.source || 'button');
+    if (event.event_name === 'form_submit_success') return 'Application submitted from ' + cleanLabel(event.source || metadata.source || 'landing page');
+    if (event.event_name === 'form_submit_attempt') return 'Application form started';
+    if (event.event_name === 'form_submit_error') return 'Application submission error';
+    if (event.event_name === 'form_validation_failed') return 'Form validation failed';
+    if (event.event_name === 'section_view') return 'Viewed section: ' + cleanLabel(metadata.section || 'section');
+    return cleanLabel(event.event_name);
+  }
+
+  function formatDate(value) {
+    var date = new Date(value);
+    if (!isFinite(date.getTime())) return '';
+    return new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
   }
 
   function bindFields() {
@@ -321,13 +552,20 @@
     return config.url.replace(/\/$/, '') + path;
   }
 
+  function recoveryRedirectUrl() {
+    if (window.location.origin && window.location.origin !== 'null') {
+      return window.location.origin + '/admin?recovery=1';
+    }
+    return window.location.href.split('#')[0].split('?')[0] + '?recovery=1';
+  }
+
   function authHeaders(token) {
     var config = getConfig();
     var headers = {
       apikey: config.publishableKey,
+      Authorization: 'Bearer ' + (token || config.publishableKey),
       'Content-Type': 'application/json'
     };
-    if (token) headers.Authorization = 'Bearer ' + token;
     return headers;
   }
 
@@ -371,7 +609,7 @@
   }
 
   function recoverPassword(email) {
-    return fetch(authUrl('/auth/v1/recover'), {
+    return fetch(authUrl('/auth/v1/recover?redirect_to=' + encodeURIComponent(recoveryRedirectUrl())), {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ email: email })
@@ -379,6 +617,44 @@
       if (!response.ok) throw new Error('password_recovery_failed');
       return response.json().catch(function () { return {}; });
     });
+  }
+
+  function updatePassword(password) {
+    return ensureSession().then(function (activeSession) {
+      if (!activeSession || !activeSession.access_token) throw new Error('session_required');
+      return fetch(authUrl('/auth/v1/user'), {
+        method: 'PUT',
+        headers: authHeaders(activeSession.access_token),
+        body: JSON.stringify({ password: password })
+      });
+    }).then(function (response) {
+      if (!response.ok) throw new Error('password_update_failed');
+      return response.json().catch(function () { return {}; });
+    });
+  }
+
+  function consumeRecoverySessionFromUrl() {
+    var hash = window.location.hash ? window.location.hash.slice(1) : '';
+    var hashParams = new URLSearchParams(hash);
+    var queryParams = new URLSearchParams(window.location.search);
+    var isRecovery = hashParams.get('type') === 'recovery' || queryParams.get('recovery') === '1';
+
+    if (hashParams.get('access_token')) {
+      storeSession(normalizeSession({
+        access_token: hashParams.get('access_token'),
+        refresh_token: hashParams.get('refresh_token'),
+        expires_at: hashParams.get('expires_at'),
+        expires_in: hashParams.get('expires_in'),
+        token_type: hashParams.get('token_type')
+      }));
+      currentUser = null;
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', window.location.pathname + '?recovery=1');
+      }
+      return true;
+    }
+
+    return Boolean(isRecovery && session && session.access_token);
   }
 
   function refreshSession() {
@@ -503,7 +779,7 @@
       recoverPassword(email)
         .then(function () {
           setStatus('Reset link sent', true);
-          notify('Reset link sent', 'Check your email for the password reset link.', 'success');
+          notify('Reset link requested', 'If the address is hello@domivise.co.uk, check that inbox and spam folder. Supabase does not send reset emails for other addresses.', 'success');
         })
         .catch(function () {
           setStatus('Could not send reset link', false);
@@ -552,6 +828,7 @@
       .then(function () {
         render();
         postPreview();
+        loadAnalytics();
       });
   }
 
@@ -658,6 +935,11 @@
   function start() {
     remoteUnavailable = !model.isSupabaseConfigured();
     if (overview && model.isSupabaseConfigured() && !authPanel.isConnected) overview.insertAdjacentElement('afterend', authPanel);
+    if (model.isSupabaseConfigured() && consumeRecoverySessionFromUrl()) {
+      showPasswordResetView();
+      setStatus('Enter a new password', false);
+      return;
+    }
     renderAuthPanel();
     fetchUser().then(renderAuthPanel).then(loadInitialContent);
   }

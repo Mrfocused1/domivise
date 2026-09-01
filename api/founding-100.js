@@ -101,7 +101,17 @@ function readRequestBody(req) {
 }
 
 function resolveSupabaseConfig() {
-  const clean = (value) => (typeof value === 'string' ? value.trim() : '');
+  const clean = (value) => {
+    if (typeof value !== 'string') return '';
+    let cleaned = value.trim().replace(/\\n/g, '').replace(/\\r/g, '').trim();
+    if (
+      (cleaned.charAt(0) === '"' && cleaned.charAt(cleaned.length - 1) === '"') ||
+      (cleaned.charAt(0) === "'" && cleaned.charAt(cleaned.length - 1) === "'")
+    ) {
+      cleaned = cleaned.slice(1, -1).trim();
+    }
+    return cleaned;
+  };
   return {
     url: clean(process.env.SUPABASE_URL) || clean(process.env.NEXT_PUBLIC_SUPABASE_URL) || clean(process.env.DOMIVISE_SUPABASE_URL),
     key: clean(process.env.SUPABASE_PUBLISHABLE_KEY) || clean(process.env.SUPABASE_ANON_KEY) || clean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) || clean(process.env.DOMIVISE_SUPABASE_PUBLISHABLE_KEY)

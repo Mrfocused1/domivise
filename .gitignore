@@ -9,3 +9,4 @@ _archive_podium/
 .env.local
 .env.*.local
 .vercel/
+.env*.local
