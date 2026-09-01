@@ -36,7 +36,6 @@ a { color: inherit; }
 .admin-main { min-width: 0; padding: 0 34px 50px; }
 .admin-topbar { position: sticky; top: 0; z-index: 20; min-height: 110px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--admin-line); background: rgba(244,244,242,.96); backdrop-filter: blur(12px); }
 .admin-topbar h1, .admin-preview-head h2 { margin: 5px 0 0; font: 500 28px/1.1 "Lexend", sans-serif; letter-spacing: 0; }
-.admin-login-logo { display: none; }
 .admin-overline { color: var(--admin-muted); }
 .admin-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .admin-button { border: 1px solid transparent; border-radius: 5px; padding: 11px 14px; font: 600 13px/1 "Lexend", sans-serif; letter-spacing: 0; white-space: nowrap; }
@@ -110,10 +109,9 @@ a { color: inherit; }
 .admin-body.is-auth-locked .admin-actions,
 .admin-body.is-auth-locked .admin-grid { display: none; }
 .admin-body.is-auth-locked .admin-main { max-width: 560px; min-height: 100vh; margin: 0 auto; padding: 38px 20px; display: grid; align-content: center; }
-.admin-body.is-auth-locked .admin-topbar { position: static; min-height: 0; display: block; padding: 0 0 22px; border: 0; background: transparent; backdrop-filter: none; text-align: center; }
+.admin-body.is-auth-locked .admin-topbar { position: static; min-height: 0; display: block; padding: 0 0 22px; border: 0; background: transparent; backdrop-filter: none; }
 .admin-body.is-auth-locked .admin-overline { display: none; }
-.admin-body.is-auth-locked .admin-login-logo { display: block; width: min(260px, 72vw); height: auto; margin: 0 auto 28px; }
-.admin-body.is-auth-locked .admin-topbar h1 { max-width: 430px; margin: 0 auto; font-size: 34px; }
+.admin-body.is-auth-locked .admin-topbar h1 { max-width: 430px; margin: 0; font-size: 34px; }
 .admin-body.is-auth-locked .admin-auth-panel { display: block; margin: 0; padding: 24px; box-shadow: var(--admin-shadow); }
 .admin-body.is-auth-locked .admin-auth-panel strong { font-size: 17px; }
 .admin-body.is-auth-locked .admin-auth-panel p { font-size: 14px; }

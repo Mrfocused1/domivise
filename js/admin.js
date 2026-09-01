@@ -465,8 +465,8 @@
     showLoginView('Sign in');
     authPanel.innerHTML = [
       '<form class="admin-login" id="adminLogin">',
-      '<label><span class="admin-sr-only">Email</span><input class="admin-control" name="email" type="email" required autocomplete="email" aria-label="Email" placeholder="Login email" /></label>',
-      '<label><span class="admin-sr-only">Password</span><input class="admin-control" name="password" type="password" required autocomplete="current-password" aria-label="Password" placeholder="Password" /></label>',
+      '<label><span class="admin-sr-only">Email</span><input class="admin-control" name="email" type="email" required autocomplete="email" aria-label="Email" /></label>',
+      '<label><span class="admin-sr-only">Password</span><input class="admin-control" name="password" type="password" required autocomplete="current-password" aria-label="Password" /></label>',
       '<button class="admin-button admin-button-primary" type="submit">Sign in</button>',
       '<button class="admin-login-secondary" id="forgotPasswordBtn" type="button">Forgot password?</button>',
       '</form>'
