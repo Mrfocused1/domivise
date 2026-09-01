@@ -19,7 +19,7 @@
   var remoteUnavailable = !model.isSupabaseConfigured();
 
   authPanel.className = 'admin-auth-panel';
-  if (overview) overview.insertAdjacentElement('afterend', authPanel);
+  if (overview && model.isSupabaseConfigured()) overview.insertAdjacentElement('afterend', authPanel);
 
   var GROUPS = [
     {
@@ -411,9 +411,15 @@
 
   function renderAuthPanel() {
     if (!model.isSupabaseConfigured()) {
-      authPanel.innerHTML = '<div><strong>Supabase publishable key missing</strong><p>Add the project publishable key in <code>js/supabase-config.js</code> to enable remote load and publish. This is not a service-role credential.</p></div>';
+      authPanel.remove();
       updateConnectionText('Local fallback');
       return;
+    }
+
+    if (!authPanel.isConnected) {
+      var topbar = document.querySelector('.admin-topbar');
+      if (overview) overview.insertAdjacentElement('afterend', authPanel);
+      else if (topbar) topbar.insertAdjacentElement('afterend', authPanel);
     }
 
     if (session && currentUser) {
@@ -533,9 +539,11 @@
     return Promise.resolve();
   }
 
-  document.getElementById('saveBtn').addEventListener('click', saveCurrentContent);
+  var saveBtn = document.getElementById('saveBtn');
+  if (saveBtn) saveBtn.addEventListener('click', saveCurrentContent);
 
-  document.getElementById('resetBtn').addEventListener('click', function () {
+  var resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.addEventListener('click', function () {
     if (!window.confirm('Reset all editable content to the current site defaults?')) return;
     content = model.clone(model.DEFAULT_CONTENT);
     render();
@@ -543,16 +551,18 @@
     setStatus(remoteUnavailable ? 'Reset to defaults. Save locally to keep it.' : 'Reset to defaults. Publish to keep it.', false);
   });
 
-  document.getElementById('exportBtn').addEventListener('click', function () {
-    var blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'domivise-content.json';
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
+  var exportBtn = document.getElementById('exportBtn');
+  if (exportBtn) exportBtn.addEventListener('click', function () {
+      var blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'domivise-content.json';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
 
-  document.getElementById('importFile').addEventListener('change', function (event) {
+  var importFile = document.getElementById('importFile');
+  if (importFile) importFile.addEventListener('change', function (event) {
     var file = event.target.files && event.target.files[0];
     if (!file) return;
     var reader = new FileReader();
