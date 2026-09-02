@@ -127,12 +127,26 @@ grant insert on public.site_analytics_events to anon;
 grant select on public.site_analytics_events to authenticated;
 grant usage on sequence public.site_analytics_events_id_seq to anon;
 
+create schema if not exists app_private;
+
+create table if not exists app_private.admin_recovery_email_sends (
+  id bigint generated always as identity primary key,
+  requested_for text not null,
+  sent_at timestamptz not null default now()
+);
+
+revoke all on schema app_private from public, anon, authenticated;
+revoke all on all tables in schema app_private from public, anon, authenticated;
+
+create index if not exists admin_recovery_email_sends_sent_at_idx
+  on app_private.admin_recovery_email_sends (sent_at desc);
+
 create or replace function public.admin_recovery_token_hash(target_email text)
 returns text
 language plpgsql
-stable
+volatile
 security definer
-set search_path = public, auth, extensions
+set search_path = public, auth, extensions, app_private
 as $$
 declare
   headers jsonb := coalesce(nullif(current_setting('request.headers', true), '')::jsonb, '{}'::jsonb);
@@ -148,6 +162,14 @@ begin
     raise invalid_parameter_value using message = 'unsupported_reset_account';
   end if;
 
+  if exists (
+    select 1
+    from app_private.admin_recovery_email_sends
+    where sent_at >= now() - interval '90 seconds'
+  ) then
+    raise too_many_connections using message = 'reset_email_rate_limited';
+  end if;
+
   select one_time_tokens.token_hash
     into token_hash
   from auth.one_time_tokens
@@ -160,6 +182,9 @@ begin
   if token_hash is null then
     raise no_data_found using message = 'recovery_token_unavailable';
   end if;
+
+  insert into app_private.admin_recovery_email_sends (requested_for)
+  values ('hello@domivise.co.uk');
 
   return token_hash;
 end;
