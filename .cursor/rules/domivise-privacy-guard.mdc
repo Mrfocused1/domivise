@@ -1,0 +1,22 @@
+---
+description: DomiVise privacy guard for Cursor agents
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# DomiVise Privacy Guard
+
+Never use, submit, connect, sync, email, test with, or configure any account, inbox, recipient, contact, analytics source, API payload, seed data, test fixture, or operational integration containing any personal identity blocked by `scripts/privacy-guard.mjs` unless the user explicitly asks for that exact identity in the same turn.
+
+Do not use personal inboxes for QA. Use neutral addresses such as `qa@example.invalid`, stub network calls, or ask the user for an approved test recipient.
+
+Before sending any real email, syncing any contact, creating any account, pushing env changes, or triggering a production workflow, verify the destination is approved for DomiVise and does not match the blocked identity.
+
+Do not expose personal identities in code, comments, logs, commits, analytics rows, Supabase content, Resend contacts, email notifications, screenshots, or final reports.
+
+Before commits, pushes, production deploys, or real external API tests, run:
+
+```sh
+node scripts/privacy-guard.mjs
+```
