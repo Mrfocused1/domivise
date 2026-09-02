@@ -726,10 +726,13 @@
   }
 
   function recoverPassword(email) {
-    return fetch(authUrl('/auth/v1/recover?redirect_to=' + encodeURIComponent(recoveryRedirectUrl())), {
+    return fetch('/api/admin-password-reset', {
       method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ email: email })
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email: email, redirectTo: recoveryRedirectUrl() })
     }).then(function (response) {
       if (!response.ok) throw new Error('password_recovery_failed');
       return response.json().catch(function () { return {}; });
