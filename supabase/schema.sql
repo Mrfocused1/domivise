@@ -175,7 +175,7 @@ begin
   from auth.one_time_tokens
   where one_time_tokens.token_type::text = 'recovery_token'
     and lower(one_time_tokens.relates_to) = 'hello@domivise.co.uk'
-    and one_time_tokens.updated_at >= (now() at time zone 'utc') - interval '5 minutes'
+    and one_time_tokens.updated_at >= (now() at time zone 'utc') - interval '60 minutes'
   order by one_time_tokens.updated_at desc
   limit 1;
 

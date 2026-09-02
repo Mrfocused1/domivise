@@ -162,7 +162,11 @@ module.exports = async function adminPasswordReset(request, response) {
     }
 
     const redirectTo = clean(body.redirectTo) || DEFAULT_REDIRECT;
-    await requestRecoveryToken(config, email, redirectTo);
+    try {
+      await requestRecoveryToken(config, email, redirectTo);
+    } catch (error) {
+      if (!error || error.status !== 429) throw error;
+    }
     const tokenHash = await readRecoveryTokenHash(config, email);
     const resetLink = `${config.url.replace(/\/$/, '')}/auth/v1/verify?token=${encodeURIComponent(tokenHash)}&type=recovery&redirect_to=${encodeURIComponent(redirectTo)}`;
     await sendResetEmail(email, resetLink);
