@@ -899,7 +899,7 @@
       recoverPassword(email)
         .then(function () {
           setStatus('Reset link sent', true);
-          notify('Reset link requested', 'If the address is hello@domivise.co.uk, check that inbox and spam folder. Supabase does not send reset emails for other addresses.', 'success');
+          notify('Reset link requested', 'If the address is hello@domivise.co.uk, check that inbox and spam folder for the DomiVise reset email.', 'success');
         })
         .catch(function () {
           setStatus('Could not send reset link', false);
